@@ -8,6 +8,7 @@ import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
 import { setPendingPhoto } from './lib/photo-handoff.ts'
 import { Analyze } from './screens/Analyze.tsx'
 import { EditEntry } from './screens/EditEntry.tsx'
+import { History } from './screens/History.tsx'
 import { ManualEntry } from './screens/ManualEntry.tsx'
 import { Placeholder } from './screens/Placeholder.tsx'
 import { Settings } from './screens/Settings.tsx'
@@ -78,7 +79,7 @@ function Shell({ profile }: { profile: Profile }) {
       screen = <ManualEntry params={params} />
       break
     case '/historial':
-      screen = <Placeholder title="Historial" message="Aquí vas a ver lo que comiste cada día." />
+      screen = <History profile={profile} params={params} onRegister={openRegister} />
       break
     case '/progreso':
       screen = <Placeholder title="Progreso" message="Peso, gráfico y resumen semanal llegan en la próxima fase." />
