@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState, type ReactNode } from 'react'
-import { db } from '../db/db.ts'
+import { db, retryRead } from '../db/db.ts'
 import { MEALS, type Entry, type Meal, type Profile } from '../db/types.ts'
 import { formatInt } from '../domain/format.ts'
 import { dayTotals, groupByMeal } from '../domain/totals.ts'
@@ -26,7 +26,7 @@ export function DayView({
   /** Shown right above the calorie card (Hoy's koala), which stays on top of it. */
   coach?: ReactNode
 }) {
-  const entries = useLiveQuery(() => db.entries.where('date').equals(date).sortBy('createdAt'), [date])
+  const entries = useLiveQuery(() => retryRead(() => db.entries.where('date').equals(date).sortBy('createdAt')), [date])
   const [openEntry, setOpenEntry] = useState<Entry | null>(null)
   const [openMeal, setOpenMeal] = useState<Meal | null>(null)
 

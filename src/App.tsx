@@ -3,7 +3,7 @@ import { useCallback, useRef, useState, type ChangeEvent } from 'react'
 import { RegisterSheet, type RegisterKind } from './app/RegisterSheet.tsx'
 import { TAB_PATHS, goBack, navigate, useRoute } from './app/router.ts'
 import { TabBar } from './app/TabBar.tsx'
-import { db } from './db/db.ts'
+import { db, retryRead } from './db/db.ts'
 import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
 import { setPendingPhoto } from './lib/photo-handoff.ts'
 import { Analyze } from './screens/Analyze.tsx'
@@ -43,7 +43,7 @@ function registerPath(kind: RegisterKind, { meal, date }: RegisterState): string
 
 export default function App() {
   // undefined while loading, null when there is no profile yet.
-  const profile = useLiveQuery(async () => (await db.profile.get(PROFILE_ID)) ?? null, [])
+  const profile = useLiveQuery(() => retryRead(async () => (await db.profile.get(PROFILE_ID)) ?? null), [])
   const { path } = useRoute()
   if (path === '/mascot-preview') return <MascotPreview />
   if (profile === undefined) return null

@@ -93,3 +93,8 @@ export function meanWeightBetween(logs: readonly WeightLog[], from: string, to: 
 export function round2(n: number): number {
   return Math.round(n * 100) / 100
 }
+
+/** Weigh-ins oldest first; sorted in JS so reads never need an IndexedDB cursor. */
+export function sortByDate<T extends { date: string }>(logs: T[]): T[] {
+  return logs.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+}

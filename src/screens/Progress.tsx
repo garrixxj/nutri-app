@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState } from 'react'
-import { db, getSettings, saveProfile, updateSettings } from '../db/db.ts'
+import { db, getSettings, retryRead, saveProfile, updateSettings } from '../db/db.ts'
 import type { Profile, WeightLog } from '../db/types.ts'
 import { IconArrowDown, IconArrowUp, IconCheck, IconChevronLeft, IconChevronRight } from '../components/icons.tsx'
 import { MacroBars } from '../components/MacroBars.tsx'
@@ -12,7 +12,7 @@ import { addDays, daysBetween, formatLongDate, fromISODate, toISODate } from '..
 import { formatInt, formatKg } from '../domain/format.ts'
 import { GAIN_PACE_PCT, PACE_MIN_READINGS, PACE_MIN_SPAN_DAYS, PACE_WINDOW_DAYS, gainPace, weekStart, weeklySummary } from '../domain/progress.ts'
 import { adjustKcal } from '../domain/targets.ts'
-import { pointsInRange, weightTrend } from '../domain/weight.ts'
+import { pointsInRange, sortByDate, weightTrend } from '../domain/weight.ts'
 import { useToday } from '../lib/useToday.ts'
 
 const RANGES = [
@@ -23,7 +23,7 @@ type Range = (typeof RANGES)[number]['value']
 
 export function Progress({ profile }: { profile: Profile }) {
   const today = useToday()
-  const weights = useLiveQuery(() => db.weights.orderBy('date').toArray(), [])
+  const weights = useLiveQuery(() => retryRead(async () => sortByDate(await db.weights.toArray())), [])
 
   return (
     <TabScreen>
@@ -122,7 +122,7 @@ function weekLabel(start: string, today: string): string {
 function WeeklyCard({ weights, today, profile }: { weights: WeightLog[]; today: string; profile: Profile }) {
   const [start, setStart] = useState(() => weekStart(today))
   const end = addDays(start, 6)
-  const entries = useLiveQuery(() => db.entries.where('date').between(start, end, true, true).toArray(), [start, end])
+  const entries = useLiveQuery(() => retryRead(() => db.entries.where('date').between(start, end, true, true).toArray()), [start, end])
   if (!entries) return null
 
   const summary = weeklySummary(entries, weights, start, today)

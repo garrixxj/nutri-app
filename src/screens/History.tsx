@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useId } from 'react'
 import { navigate } from '../app/router.ts'
-import { db } from '../db/db.ts'
+import { db, retryRead } from '../db/db.ts'
 import type { Meal, Profile } from '../db/types.ts'
 import { DayView } from '../components/DayView.tsx'
 import { IconChevronLeft, IconChevronRight } from '../components/icons.tsx'
@@ -36,7 +36,7 @@ export function History({
   const week = WEEKDAY_LETTERS.map((letter, i) => ({ letter, iso: addDays(weekStart, i) }))
   const weekEnd = addDays(weekStart, 6)
   const loggedDays = useLiveQuery(
-    async () => new Set((await db.entries.where('date').between(weekStart, weekEnd, true, true).toArray()).map((e) => e.date)),
+    () => retryRead(async () => new Set((await db.entries.where('date').between(weekStart, weekEnd, true, true).toArray()).map((e) => e.date))),
     [weekStart, weekEnd],
   )
 

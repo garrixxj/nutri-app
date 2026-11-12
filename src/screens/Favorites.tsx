@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useState, type ReactNode } from 'react'
 import { goBack } from '../app/router.ts'
-import { db } from '../db/db.ts'
+import { db, retryRead } from '../db/db.ts'
 import { deleteFavorite, logSavedMeal, renameFavorite } from '../db/favorites-store.ts'
 import { MEALS, type Favorite, type Item, type Meal } from '../db/types.ts'
 import { ChipGroup } from '../components/fields.tsx'
@@ -47,9 +47,9 @@ export function Favorites({ params }: { params: URLSearchParams }) {
   })
   const [pick, setPick] = useState<Pick | null>(null)
 
-  const favorites = useLiveQuery(() => db.favorites.toArray(), [])
+  const favorites = useLiveQuery(() => retryRead(() => db.favorites.toArray()), [])
   const recent = useLiveQuery(
-    () => db.entries.where('date').aboveOrEqual(addDays(toISODate(new Date()), -FREQUENT_WINDOW_DAYS)).toArray(),
+    () => retryRead(() => db.entries.where('date').aboveOrEqual(addDays(toISODate(new Date()), -FREQUENT_WINDOW_DAYS)).toArray()),
     [],
   )
 

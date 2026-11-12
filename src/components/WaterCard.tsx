@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { db } from '../db/db.ts'
+import { db, retryRead } from '../db/db.ts'
 import type { Profile } from '../db/types.ts'
 import { addWater, undoLastWater } from '../db/water-store.ts'
 import { formatInt } from '../domain/format.ts'
@@ -8,7 +8,7 @@ import { IconDroplet, IconUndo } from './icons.tsx'
 
 /** Water for one day: progress toward the goal, quick adds and undo of the last one. */
 export function WaterCard({ date, profile }: { date: string; profile: Profile }) {
-  const logs = useLiveQuery(() => db.water.where('date').equals(date).toArray(), [date])
+  const logs = useLiveQuery(() => retryRead(() => db.water.where('date').equals(date).toArray()), [date])
   const total = totalWaterMl(logs ?? [])
   const goal = waterGoalMl(profile)
   const ratio = goal > 0 ? Math.min(total / goal, 1) : 0

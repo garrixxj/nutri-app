@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useMemo, useState, useSyncExternalStore } from 'react'
-import { db } from '../../db/db.ts'
+import { db, retryRead } from '../../db/db.ts'
+import { addDays } from '../../domain/dates.ts'
 import type { Profile } from '../../db/types.ts'
 import { coachMessage, dayMood, loggingStreak } from '../../domain/mascot.ts'
 import { dayTotals } from '../../domain/totals.ts'
@@ -8,6 +9,8 @@ import { getReaction, noticeEntries, subscribeReaction, tapKoala } from './react
 import type { KoalaState } from './states.ts'
 
 const CELEBRATED_KEY = 'koala.celebrated'
+/** How far back the streak looks. */
+const STREAK_WINDOW_DAYS = 730
 
 function readCelebrated(): string | null {
   try {
@@ -49,8 +52,16 @@ export interface Coach {
 
 /** Koala state and line for Hoy, from today's entries, the hour and the logging streak. */
 export function useCoach(today: string, profile: Profile): Coach | null {
-  const entries = useLiveQuery(() => db.entries.where('date').equals(today).toArray(), [today])
-  const dates = useLiveQuery(async () => (await db.entries.orderBy('date').uniqueKeys()).map(String), [])
+  const entries = useLiveQuery(() => retryRead(() => db.entries.where('date').equals(today).toArray()), [today])
+  // Unique logged days in a plain range read (no cursor: Safari's uniqueKeys() fails on iOS).
+  const dates = useLiveQuery(
+    () =>
+      retryRead(async () => {
+        const rows = await db.entries.where('date').between(addDays(today, -STREAK_WINDOW_DAYS), today, true, true).toArray()
+        return [...new Set(rows.map((e) => e.date))]
+      }),
+    [today],
+  )
   const hour = useHour()
   const reaction = useSyncExternalStore(subscribeReaction, getReaction)
 

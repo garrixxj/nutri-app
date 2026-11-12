@@ -73,3 +73,38 @@ export async function updateSettings(patch: Partial<Omit<Settings, 'id'>>): Prom
   const current = await getSettings()
   await db.settings.put({ ...current, ...patch, id: SETTINGS_ID })
 }
+
+/*
+ * Safari on iOS can fail IndexedDB cursors ("UnknownError: Unable to open cursor").
+ * Reads in this app avoid cursors (no orderBy/uniqueKeys/reverse/last/offset/limit):
+ * they use where(...).equals/between(...).toArray() or table.toArray() and sort or
+ * dedupe in JavaScript. As a second line of defense, reads go through `retryRead`.
+ */
+let reopening: Promise<unknown> | null = null
+
+function isRecoverable(e: unknown): boolean {
+  const err = e as { name?: string; inner?: { name?: string } } | null
+  return err?.name === 'UnknownError' || err?.inner?.name === 'UnknownError' || err?.name === 'DatabaseClosedError'
+}
+
+/** Closes and reopens the database once, shared by every read that fails at the same time. */
+function reopenDb(): Promise<unknown> {
+  if (!reopening) {
+    db.close({ disableAutoOpen: false })
+    reopening = db.open().finally(() => {
+      reopening = null
+    })
+  }
+  return reopening
+}
+
+/** Runs a read; if Safari fails it with UnknownError, reopens the database and tries once more. */
+export async function retryRead<T>(read: () => Promise<T>): Promise<T> {
+  try {
+    return await read()
+  } catch (e) {
+    if (!isRecoverable(e)) throw e
+    await reopenDb()
+    return read()
+  }
+}

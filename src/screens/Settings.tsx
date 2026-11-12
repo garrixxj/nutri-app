@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } from 'react'
 import { navigate } from '../app/router.ts'
 import { usageToday } from '../db/ai-usage.ts'
-import { db, getSettings, saveProfile, updateSettings } from '../db/db.ts'
+import { db, getSettings, retryRead, saveProfile, updateSettings } from '../db/db.ts'
 import { BackupError, parseBackup, type ParsedBackup } from '../db/backup.ts'
 import { buildBackup, markBackupExported, restoreBackup } from '../db/backup-store.ts'
 import { DEFAULT_GEMINI_MODEL, type Profile, type Settings as SettingsData, type Targets } from '../db/types.ts'
@@ -297,7 +297,7 @@ function ProfileSection({ profile }: { profile: Profile }) {
 
 function BackupSection({ lastBackupAt }: { lastBackupAt: number | undefined }) {
   const today = useToday()
-  const entryCount = useLiveQuery(() => db.entries.count(), []) ?? 0
+  const entryCount = useLiveQuery(() => retryRead(() => db.entries.count()), []) ?? 0
   const fileRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
   const [pending, setPending] = useState<ParsedBackup | null>(null)

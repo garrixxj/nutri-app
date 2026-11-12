@@ -1,7 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { navigate } from '../app/router.ts'
-import { db } from '../db/db.ts'
+import { db, retryRead } from '../db/db.ts'
 import { deleteFavorite, findFavorite, saveFavoriteFromEntry } from '../db/favorites-store.ts'
 import type { Entry, EntrySource } from '../db/types.ts'
 import { formatTime } from '../domain/dates.ts'
@@ -43,7 +43,7 @@ export function EntrySheet({ entry, onClose }: { entry: Entry | null; onClose: (
   }
 
   const totals = shown ? entryTotals(shown) : null
-  const favorites = useLiveQuery(() => db.favorites.toArray(), [])
+  const favorites = useLiveQuery(() => retryRead(() => db.favorites.toArray()), [])
   const favorite = shown && favorites ? findFavorite(favorites, shown.items) : undefined
 
   async function toggleFavorite() {

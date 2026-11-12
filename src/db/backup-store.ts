@@ -1,13 +1,14 @@
 import { db, getProfile, updateSettings } from './db.ts'
+import { sortByDate } from '../domain/weight.ts'
 import { serializeBackup, type BackupData, type BackupFile } from './backup.ts'
 
 /** Reads everything that belongs in a backup. Settings (API key) never go in. */
 export async function buildBackup(): Promise<BackupFile> {
   const [profile, entries, favorites, weights, water] = await Promise.all([
     getProfile(),
-    db.entries.orderBy('createdAt').toArray(),
+    db.entries.toArray().then((rows) => rows.sort((a, b) => a.createdAt - b.createdAt)),
     db.favorites.toArray(),
-    db.weights.orderBy('date').toArray(),
+    db.weights.toArray().then(sortByDate),
     db.water.toArray(),
   ])
   return serializeBackup({ profile: profile ?? null, entries, favorites, weights, water })
