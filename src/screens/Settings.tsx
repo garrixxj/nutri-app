@@ -1,6 +1,7 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } from 'react'
 import { navigate } from '../app/router.ts'
+import { usageToday } from '../db/ai-usage.ts'
 import { db, getSettings, saveProfile, updateSettings } from '../db/db.ts'
 import { BackupError, parseBackup, type BackupFile } from '../db/backup.ts'
 import { buildBackup, markBackupExported, restoreBackup } from '../db/backup-store.ts'
@@ -84,6 +85,10 @@ function AiSection({ settings }: { settings: SettingsData }) {
             {showKey ? 'Ocultar' : 'Mostrar'}
           </button>
         </div>
+        <div className="flex min-h-12 items-center justify-between px-4">
+          <span className="text-body">Análisis con IA hoy</span>
+          <span className="text-body font-semibold tabular">{formatInt(usageToday(settings))}</span>
+        </div>
         <div className="flex min-h-12 items-center gap-2 px-4">
           <label htmlFor={modelId} className="shrink-0 text-body">
             Modelo
@@ -102,6 +107,10 @@ function AiSection({ settings }: { settings: SettingsData }) {
           />
         </div>
       </RowGroup>
+      <Footnote>
+        El contador se reinicia junto con la cuota gratis de Google (medianoche en California, entre las 3 y las 5 de la
+        mañana en Chile). Tu límite diario aparece en Google AI Studio.
+      </Footnote>
       <Footnote>
         La key se guarda solo en este teléfono y nunca va en el respaldo. Créala gratis en{' '}
         <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="font-medium text-accent">

@@ -20,8 +20,6 @@ const OPTIONS: Option[] = [
 
 /** Options not wired up yet in this build. */
 const UNAVAILABLE: Partial<Record<RegisterKind, string>> = {
-  photo: 'Pronto',
-  text: 'Pronto',
   favorite: 'Próximamente',
 }
 

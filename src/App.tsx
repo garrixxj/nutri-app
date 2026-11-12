@@ -1,10 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState, type ChangeEvent } from 'react'
 import { RegisterSheet, type RegisterKind } from './app/RegisterSheet.tsx'
 import { TAB_PATHS, goBack, navigate, useRoute } from './app/router.ts'
 import { TabBar } from './app/TabBar.tsx'
 import { db } from './db/db.ts'
 import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
+import { setPendingPhoto } from './lib/photo-handoff.ts'
+import { Analyze } from './screens/Analyze.tsx'
 import { EditEntry } from './screens/EditEntry.tsx'
 import { ManualEntry } from './screens/ManualEntry.tsx'
 import { Placeholder } from './screens/Placeholder.tsx'
@@ -13,7 +15,26 @@ import { ProfileFlow } from './screens/ProfileFlow.tsx'
 import { Today } from './screens/Today.tsx'
 
 const REGISTER_PATHS: Partial<Record<RegisterKind, string>> = {
+  photo: '/registrar/foto',
+  text: '/registrar/describir',
   manual: '/registrar/manual',
+}
+
+interface RegisterState {
+  open: boolean
+  meal?: Meal
+  /** YYYY-MM-DD when registering on a past day from Historial. */
+  date?: string
+}
+
+function registerPath(kind: RegisterKind, { meal, date }: RegisterState): string | null {
+  const base = REGISTER_PATHS[kind]
+  if (!base) return null
+  const q = new URLSearchParams()
+  if (meal) q.set('meal', meal)
+  if (date) q.set('date', date)
+  const query = q.toString()
+  return query ? `${base}?${query}` : base
 }
 
 export default function App() {
@@ -26,9 +47,19 @@ export default function App() {
 
 function Shell({ profile }: { profile: Profile }) {
   const { path, params } = useRoute()
-  const [register, setRegister] = useState<{ open: boolean; meal?: Meal }>({ open: false })
-  const openRegister = useCallback((meal?: Meal) => setRegister({ open: true, meal }), [])
+  const [register, setRegister] = useState<RegisterState>({ open: false })
+  const openRegister = useCallback((meal?: Meal, date?: string) => setRegister({ open: true, meal, date }), [])
   const closeRegister = useCallback(() => setRegister((r) => ({ ...r, open: false })), [])
+  const cameraRef = useRef<HTMLInputElement>(null)
+
+  function onCameraPhoto(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    setPendingPhoto(file)
+    const to = registerPath('photo', register)
+    if (to) navigate(to)
+  }
 
   const isTab = (TAB_PATHS as readonly string[]).includes(path)
 
@@ -36,6 +67,12 @@ function Shell({ profile }: { profile: Profile }) {
   switch (path) {
     case '/editar':
       screen = <EditEntry id={params.get('id')} />
+      break
+    case '/registrar/foto':
+      screen = <Analyze key="photo" mode="photo" params={params} />
+      break
+    case '/registrar/describir':
+      screen = <Analyze key="text" mode="text" params={params} />
       break
     case '/registrar/manual':
       screen = <ManualEntry params={params} />
@@ -64,10 +101,22 @@ function Shell({ profile }: { profile: Profile }) {
         open={register.open}
         onClose={closeRegister}
         onPick={(kind) => {
+          // Open the camera inside this tap; iOS blocks it after a navigation.
+          if (kind === 'photo') cameraRef.current?.click()
           closeRegister()
-          const to = REGISTER_PATHS[kind]
-          if (to) navigate(register.meal ? `${to}?meal=${register.meal}` : to)
+          const to = registerPath(kind, register)
+          if (to && kind !== 'photo') navigate(to)
         }}
+      />
+      <input
+        ref={cameraRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="hidden"
+        tabIndex={-1}
+        aria-hidden="true"
+        onChange={onCameraPhoto}
       />
     </>
   )

@@ -87,7 +87,7 @@ export function ChipGroup<T extends string>({
   label: string
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1.5 px-4">
+    <div role="radiogroup" aria-label={label} className="-my-1 flex gap-1.5 overflow-x-auto px-4 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {options.map((o) => {
         const active = o.value === value
         return (
@@ -97,7 +97,7 @@ export function ChipGroup<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.value)}
-            className={`min-h-11 rounded-full px-3.5 text-secondary font-medium transition-colors duration-150 ease-out ${active ? 'bg-accent text-white' : 'bg-card text-text shadow-card'}`}
+            className={`min-h-11 shrink-0 rounded-full px-3.5 text-secondary font-medium transition-colors duration-150 ease-out ${active ? 'bg-accent text-white' : 'bg-card text-text shadow-card'}`}
           >
             {o.label}
           </button>

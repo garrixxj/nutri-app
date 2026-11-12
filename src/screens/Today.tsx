@@ -12,7 +12,7 @@ import { formatInt } from '../domain/format.ts'
 import { dayTotals, groupByMeal } from '../domain/totals.ts'
 import { useToday } from '../lib/useToday.ts'
 
-export function Today({ profile, onRegister }: { profile: Profile; onRegister: (meal?: Meal) => void }) {
+export function Today({ profile, onRegister }: { profile: Profile; onRegister: (meal?: Meal, date?: string) => void }) {
   const today = useToday()
   const entries = useLiveQuery(() => db.entries.where('date').equals(today).sortBy('createdAt'), [today])
   const [openEntry, setOpenEntry] = useState<Entry | null>(null)

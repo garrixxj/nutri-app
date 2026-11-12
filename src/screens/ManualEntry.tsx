@@ -24,7 +24,7 @@ interface Draft {
 
 const MEAL_OPTIONS = MEALS.map((m) => ({ value: m, label: MEAL_LABELS[m] }))
 
-const emptyDraft = (): Draft => ({ key: newId(), name: '', grams: '', kcal: '', protein: '', carbs: '', fat: '' })
+const emptyDraft = (name = ''): Draft => ({ key: newId(), name, grams: '', kcal: '', protein: '', carbs: '', fat: '' })
 
 /** kcal typed by the user, or derived from the macros when left empty. */
 function draftKcal(d: Draft): number | null {
@@ -66,7 +66,7 @@ export function ManualEntry({ params }: { params: URLSearchParams }) {
   const [meal, setMeal] = useState<Meal>(() =>
     isMeal(mealParam) ? mealParam : mealForHour(new Date().getHours()),
   )
-  const [drafts, setDrafts] = useState<Draft[]>([emptyDraft()])
+  const [drafts, setDrafts] = useState<Draft[]>(() => [emptyDraft(params.get('name')?.slice(0, 120) ?? '')])
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
