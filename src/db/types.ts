@@ -38,6 +38,8 @@ export interface Profile {
   targets: Targets
   /** True when the user overrode the calculated targets by hand. */
   targetsEdited: boolean
+  /** Daily water goal in ml. Missing on profiles created before v2: use the default. */
+  waterGoalMl?: number
   updatedAt: number
 }
 
@@ -57,6 +59,36 @@ export interface Entry {
   source: EntrySource
   /** Small JPEG data URL. */
   photoThumb?: string
+  createdAt: number
+}
+
+/** A whole meal saved for one-tap logging (no AI). */
+export interface Favorite {
+  id: string
+  name: string
+  items: Item[]
+  /** Meal it was saved from; only a default, the user picks when logging. */
+  meal: Meal
+  photoThumb?: string
+  createdAt: number
+  lastUsedAt: number
+  useCount: number
+}
+
+/** One weigh-in per local day; logging again the same day replaces it. */
+export interface WeightLog {
+  /** Local date, YYYY-MM-DD (primary key). */
+  date: string
+  kg: number
+  createdAt: number
+}
+
+/** One glass/bottle of water; kept per intake so the last one can be undone. */
+export interface WaterLog {
+  id: string
+  /** Local date, YYYY-MM-DD. */
+  date: string
+  ml: number
   createdAt: number
 }
 
