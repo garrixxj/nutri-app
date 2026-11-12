@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { IconChevronLeft } from './icons.tsx'
 
 export function ScreenHeader({ title, eyebrow, right }: { title: string; eyebrow?: string; right?: ReactNode }) {
   return (
@@ -47,10 +48,44 @@ export function Button({
   )
 }
 
+/** Round icon button (back, close), 44x44. `onImage` adds a frosted backdrop for use over photos. */
+export function CircleButton({
+  label,
+  onImage = false,
+  className = '',
+  children,
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement> & { label: string; onImage?: boolean }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      className={`flex size-11 shrink-0 items-center justify-center rounded-full text-text transition-transform duration-150 ease-out active:scale-90 ${onImage ? 'bg-[color-mix(in_srgb,var(--card)_80%,transparent)] shadow-card backdrop-blur-md' : 'bg-card shadow-card'} ${className}`}
+      {...rest}
+    >
+      {children}
+    </button>
+  )
+}
+
+/** Header for full-screen flows: back button and title on one row. */
+export function FlowHeader({ title, onBack, backLabel = 'Volver' }: { title: string; onBack: () => void; backLabel?: string }) {
+  return (
+    <header className="safe-top px-4">
+      <div className="flex min-h-14 items-center gap-3 pt-2 pb-2">
+        <CircleButton label={backLabel} onClick={onBack}>
+          <IconChevronLeft size={22} strokeWidth={2.2} />
+        </CircleButton>
+        <h1 className="min-w-0 truncate text-title font-bold tracking-tight">{title}</h1>
+      </div>
+    </header>
+  )
+}
+
 /** Fixed bottom action area for full-screen flows (no tab bar). */
 export function BottomBar({ children }: { children: ReactNode }) {
   return (
-    <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-separator bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur-xl">
+    <div className="safe-bottom fixed inset-x-0 bottom-0 z-30 bg-[color-mix(in_srgb,var(--bg)_88%,transparent)] backdrop-blur-xl">
       <div className="mx-auto max-w-md px-4 pt-3 pb-3">{children}</div>
     </div>
   )

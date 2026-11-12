@@ -6,7 +6,8 @@ import { recordAiUsage } from '../db/ai-usage.ts'
 import { db, getSettings } from '../db/db.ts'
 import type { Meal } from '../db/types.ts'
 import { IconCamera } from '../components/icons.tsx'
-import { BottomBar, Button, Card } from '../components/ui.tsx'
+import { PhotoHero } from '../components/PhotoHero.tsx'
+import { BottomBar, Button, Card, FlowHeader } from '../components/ui.tsx'
 import { toISODate } from '../domain/dates.ts'
 import { isMeal, mealForHour } from '../domain/meals.ts'
 import { newId } from '../lib/id.ts'
@@ -134,7 +135,7 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
         title="Revisa tu comida"
         initialItems={result.items}
         assumptions={result.assumptions}
-        thumb={photo?.thumbDataUrl}
+        photo={previewUrl ?? undefined}
         initialMeal={meal}
         onCancel={leave}
         onSave={async (chosenMeal, items) => {
@@ -156,19 +157,17 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
 
   const title = mode === 'photo' ? 'Foto de tu comida' : 'Describe tu comida'
   const canAnalyze = mode === 'photo' ? photo !== null : text.trim() !== ''
+  const showHero = previewUrl !== null && (phase === 'compose' || phase === 'loading')
 
   return (
     <main className="mx-auto max-w-md pb-[calc(env(safe-area-inset-bottom)+104px)]">
-      <header className="safe-top px-4">
-        <div className="flex min-h-11 items-center pt-2">
-          <Button variant="plain" className="-ml-2 px-2" onClick={leave}>
-            Cancelar
-          </Button>
-        </div>
-        <h1 className="pt-2 pb-3 text-title font-bold tracking-tight">{title}</h1>
-      </header>
+      {showHero ? (
+        <PhotoHero src={previewUrl} alt="Foto de tu comida" onBack={leave} scanning={phase === 'loading'} />
+      ) : (
+        <FlowHeader title={title} onBack={leave} backLabel="Cancelar" />
+      )}
 
-      {phase === 'loading' && <LoadingState thumb={photo?.thumbDataUrl} mode={mode} onCancel={cancelLoading} />}
+      {phase === 'loading' && <LoadingState overlap={showHero} mode={mode} onCancel={cancelLoading} />}
 
       {phase === 'error' && error && (
         <div className="px-4">
@@ -195,17 +194,13 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
         <>
           {mode === 'photo' && (
             <div className="px-4">
-              {previewUrl ? (
-                <div className="overflow-hidden rounded-card bg-card shadow-card">
-                  <img src={previewUrl} alt="Foto de tu comida" className="max-h-[45dvh] w-full object-cover" />
-                </div>
-              ) : shot && !photoError ? (
-                <div className="flex h-56 animate-pulse items-center justify-center rounded-card bg-text-2/12">
+              {previewUrl ? null : shot && !photoError ? (
+                <div className="flex h-56 animate-pulse items-center justify-center rounded-card bg-fill">
                   <p className="text-secondary text-text-2">Preparando foto…</p>
                 </div>
               ) : (
                 <Card className="flex flex-col items-center px-4 py-8 text-center">
-                  <span className="flex size-14 items-center justify-center rounded-full bg-accent/14 text-accent">
+                  <span className="flex size-14 items-center justify-center rounded-full bg-fill text-text">
                     <IconCamera size={28} />
                   </span>
                   <p className="mt-3 text-body font-semibold">Saca una foto de tu plato</p>
@@ -217,7 +212,7 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
                   {photoError}
                 </p>
               )}
-              <div className="mt-3 flex gap-2">
+              <div className={`flex gap-2 ${previewUrl ? 'mt-4' : 'mt-3'}`}>
                 <Button variant="secondary" className="flex-1" onClick={() => cameraRef.current?.click()}>
                   {shot ? 'Tomar otra' : 'Tomar foto'}
                 </Button>
@@ -265,31 +260,22 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
   )
 }
 
-function LoadingState({ thumb, mode, onCancel }: { thumb?: string; mode: Mode; onCancel: () => void }) {
+function LoadingState({ overlap, mode, onCancel }: { overlap: boolean; mode: Mode; onCancel: () => void }) {
   return (
     <div className="px-4" aria-live="polite">
-      <div className="flex items-center gap-4">
-        {thumb ? (
-          <img src={thumb} alt="" width={72} height={72} className="size-18 shrink-0 rounded-inner object-cover" />
-        ) : (
-          <div className="size-18 shrink-0 animate-pulse rounded-inner bg-text-2/15" />
-        )}
-        <div className="flex-1">
-          <p className="text-body font-semibold">{mode === 'photo' ? 'Analizando tu plato…' : 'Analizando tu comida…'}</p>
-          <p className="text-secondary text-text-2">Suele tardar unos segundos.</p>
+      <section className={`relative z-10 rounded-card bg-card p-5 shadow-card ${overlap ? '-mt-10' : 'mt-2'}`}>
+        <p className="text-body font-semibold">{mode === 'photo' ? 'Analizando tu plato…' : 'Analizando tu comida…'}</p>
+        <p className="text-secondary text-text-2">Suele tardar unos segundos.</p>
+        <div className="mt-4 grid grid-cols-3 gap-2" aria-hidden="true">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-15 animate-pulse rounded-inner bg-fill" />
+          ))}
         </div>
-      </div>
-      <ul className="mt-5 flex flex-col gap-2" aria-hidden="true">
-        {[0, 1, 2].map((i) => (
-          <li key={i} className="rounded-card bg-card p-4 shadow-card">
-            <div className="h-4 w-1/2 animate-pulse rounded-full bg-text-2/15" />
-            <div className="mt-3 flex justify-between">
-              <div className="h-8 w-20 animate-pulse rounded-button bg-text-2/12" />
-              <div className="h-4 w-24 animate-pulse self-center rounded-full bg-text-2/12" />
-            </div>
-          </li>
-        ))}
-      </ul>
+        <div className="mt-4 flex flex-col gap-2.5" aria-hidden="true">
+          <div className="h-4 w-2/3 animate-pulse rounded-full bg-fill" />
+          <div className="h-4 w-1/2 animate-pulse rounded-full bg-fill" />
+        </div>
+      </section>
       <Button variant="plain" className="mt-3 w-full" onClick={onCancel}>
         Cancelar análisis
       </Button>

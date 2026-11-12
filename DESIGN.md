@@ -23,6 +23,7 @@ Sigue el modo claro u oscuro del sistema (prefers-color-scheme). El oscuro se de
 | Proteína | protein | #FF7843 | #FF9466 |
 | Carbohidratos | carbs | #4EBA6F | #5FCF80 |
 | Grasa | fat | #5B8DEF | #84A9FF |
+| Aviso (confianza media, "revisa") | warning | #9A5B00 | #FFB95C |
 | Peligro | danger | #BA1A1A | #FFB4AB |
 Los colores de macros son fijos en toda la app (anillo, barras, chips, gráficos). `brand` no se usa para texto pequeño (contraste bajo); para eso está `accent`.
 
@@ -38,7 +39,7 @@ El botón central es un círculo casi negro que sobresale de la barra; abre la h
 
 ## Pantallas clave
 - Hoy: tarjeta grande con "Te quedan X kcal" a la izquierda y el anillo con el % de la meta a la derecha; debajo, un panel gris con las tres barras de macros. Luego "Comidas" con un chip "N de 5 registradas" y una grilla de 2 columnas (emoji o foto, nombre de la comida, ítems y kcal, botón +). Snack ocupa el ancho completo. Tocar una comida con un registro abre su detalle; con varios, abre una hoja con la lista.
-- Revisión de IA: foto en miniatura, lista de ítems con gramos editables y nivel de confianza, totales que se actualizan al instante, botón "Guardar" fijo abajo.
+- Foto y Revisión de IA (estilo "AI Food Scanner" de Stitch): la foto ocupa el ancho completo arriba, con esquinas de visor y un botón atrás circular encima. Una tarjeta se monta sobre el borde inferior de la foto: chip de confianza promedio, kcal en grande, título, n.º de alimentos y tres bloques de macros. Debajo: chips "¿En qué comida?", ítems con gramos editables y confianza, supuestos de la IA y el botón fijo "Guardar en <comida> · N kcal". Sin foto (texto o edición), la tarjeta va bajo un encabezado con botón atrás. Mientras analiza: la misma foto con la píldora "Analizando" y un skeleton en la tarjeta.
 - Estados: vacío (invita a registrar la primera comida), cargando (skeleton y texto "Analizando tu plato…") y error (mensaje claro más registro manual).
 
 ## Movimiento
