@@ -69,4 +69,8 @@ export interface Settings {
   geminiApiKey: string
   geminiModel: string
   lastBackupAt?: number
+  /** Gemini quota day (Pacific time, YYYY-MM-DD) of `aiUsageCount`. */
+  aiUsageDay?: string
+  /** Successful AI analyses on `aiUsageDay`. */
+  aiUsageCount?: number
 }
