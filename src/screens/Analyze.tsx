@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type ChangeEvent } from 'react'
-import { AiError, aiError } from '../ai/errors.ts'
-import { analyzeMeal, type AnalysisResult } from '../ai/gemini.ts'
+import { AiError, aiError, type ModelAttempt } from '../ai/errors.ts'
+import { analyzeMeal, type ModelAnalysis } from '../ai/gemini.ts'
 import { goBack, navigate } from '../app/router.ts'
 import { recordAiUsage } from '../db/ai-usage.ts'
 import { db, getSettings } from '../db/db.ts'
@@ -45,7 +45,9 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
   const previewUrl = photo ? `data:image/jpeg;base64,${photo.aiBase64}` : null
   const [text, setText] = useState('')
   const [phase, setPhase] = useState<Phase>('compose')
-  const [result, setResult] = useState<AnalysisResult | null>(null)
+  const [result, setResult] = useState<ModelAnalysis | null>(null)
+  /** Model being tried, once the first one failed (shown while loading). */
+  const [fallbackModel, setFallbackModel] = useState<string | null>(null)
   const [error, setError] = useState<AiError | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
@@ -89,12 +91,16 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
     abortRef.current = controller
     setPhase('loading')
     setError(null)
+    setFallbackModel(null)
     try {
       const settings = await getSettings()
       const res = await analyzeMeal(
         {
           apiKey: settings.geminiApiKey,
-          model: settings.geminiModel,
+          models: settings.geminiModels,
+          onModel: (model, index) => {
+            if (!controller.signal.aborted) setFallbackModel(index > 0 ? model : null)
+          },
           imageBase64: photo?.aiBase64,
           text: description || undefined,
           signal: controller.signal,
@@ -135,6 +141,7 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
         title="Revisa tu comida"
         initialItems={result.items}
         assumptions={result.assumptions}
+        model={result.model}
         photo={previewUrl ?? undefined}
         initialMeal={meal}
         onCancel={leave}
@@ -167,7 +174,7 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
         <FlowHeader title={title} onBack={leave} backLabel="Cancelar" />
       )}
 
-      {phase === 'loading' && <LoadingState overlap={showHero} mode={mode} onCancel={cancelLoading} />}
+      {phase === 'loading' && <LoadingState overlap={showHero} mode={mode} fallbackModel={fallbackModel} onCancel={cancelLoading} />}
 
       {phase === 'error' && error && (
         <div className="px-4">
@@ -176,6 +183,7 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
             <p className="mt-1 text-secondary text-text-2" role="alert">
               {error.message}
             </p>
+            {error.attempts.length > 0 && <AttemptDetails attempts={error.attempts} />}
             <div className="mt-4 flex flex-col gap-2">
               {error.action === 'settings' && <Button onClick={() => navigate('/ajustes', { replace: true })}>Ir a Ajustes</Button>}
               {error.action === 'retry' && <Button onClick={analyze}>Reintentar</Button>}
@@ -260,12 +268,44 @@ export function Analyze({ mode, params }: { mode: Mode; params: URLSearchParams 
   )
 }
 
-function LoadingState({ overlap, mode, onCancel }: { overlap: boolean; mode: Mode; onCancel: () => void }) {
+/** "Ver detalle técnico": HTTP status and Google's message for each model tried. Never the key. */
+function AttemptDetails({ attempts }: { attempts: readonly ModelAttempt[] }) {
+  return (
+    <details className="mt-3 rounded-inner bg-fill px-4">
+      <summary className="flex min-h-11 cursor-pointer items-center text-secondary font-medium text-accent">Ver detalle técnico</summary>
+      <ul className="flex flex-col gap-3 pb-4">
+        {attempts.map((a, i) => (
+          <li key={i} className="text-label">
+            <p className="font-semibold text-text break-all">{a.model}</p>
+            <p className="text-text-2 break-words">
+              {a.status === 'timeout' ? 'Sin respuesta' : a.status === 'network' ? 'Sin conexión' : `HTTP ${a.status}`}
+              {a.message ? `: ${a.message}` : ''}
+            </p>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )
+}
+
+function LoadingState({
+  overlap,
+  mode,
+  fallbackModel,
+  onCancel,
+}: {
+  overlap: boolean
+  mode: Mode
+  fallbackModel: string | null
+  onCancel: () => void
+}) {
   return (
     <div className="px-4" aria-live="polite">
       <section className={`relative z-10 rounded-card bg-card p-5 shadow-card ${overlap ? '-mt-10' : 'mt-2'}`}>
         <p className="text-body font-semibold">{mode === 'photo' ? 'Analizando tu plato…' : 'Analizando tu comida…'}</p>
-        <p className="text-secondary text-text-2">Suele tardar unos segundos.</p>
+        <p className="text-secondary text-text-2">
+          {fallbackModel ? `El modelo anterior no respondió; probando con ${fallbackModel}…` : 'Suele tardar unos segundos.'}
+        </p>
         <div className="mt-4 grid grid-cols-3 gap-2" aria-hidden="true">
           {[0, 1, 2].map((i) => (
             <div key={i} className="h-15 animate-pulse rounded-inner bg-fill" />

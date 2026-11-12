@@ -41,6 +41,7 @@ export function Review({
   initialItems,
   initialMeal,
   assumptions = [],
+  model,
   thumb,
   photo,
   saveLabel,
@@ -51,6 +52,8 @@ export function Review({
   initialItems: ReviewInput[]
   initialMeal: Meal
   assumptions?: string[]
+  /** Gemini model that made the analysis, shown small. */
+  model?: string
   /** Small saved thumbnail, shown inside the summary card. */
   thumb?: string
   /** Full-size photo (data URL); when present it is shown as the hero. */
@@ -119,6 +122,7 @@ export function Review({
             <MacroTile label="Carbos" value={totals.carbs} dot="bg-carbs" />
             <MacroTile label="Grasa" value={totals.fat} dot="bg-fat" />
           </div>
+          {model && <p className="mt-3 text-label text-text-2">Analizado con {model}</p>}
         </section>
       </div>
 
