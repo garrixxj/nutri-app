@@ -27,3 +27,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Plus Jakarta Sans
+
+La fuente `public/fonts/plus-jakarta-sans-latin-wght.woff2` es Plus Jakarta Sans (https://github.com/tokotype/PlusJakartaSans), Copyright 2020 The Plus Jakarta Sans Project Authors, distribuida bajo la SIL Open Font License 1.1 (https://openfontlicense.org).

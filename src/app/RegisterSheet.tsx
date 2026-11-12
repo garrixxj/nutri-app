@@ -43,7 +43,7 @@ export function RegisterSheet({
                 type="button"
                 disabled={badge !== undefined}
                 onClick={() => onPick(kind)}
-                className="flex min-h-16 w-full items-center gap-3 rounded-button bg-bg px-3 py-2.5 text-left transition-transform duration-150 ease-out active:scale-[0.98] disabled:active:scale-100"
+                className="flex min-h-16 w-full items-center gap-3 rounded-inner bg-fill px-3 py-2.5 text-left transition-transform duration-150 ease-out active:scale-[0.98] disabled:active:scale-100"
               >
                 <span
                   className={`flex size-11 shrink-0 items-center justify-center rounded-full ${badge ? 'bg-text-2/12 text-text-2' : 'bg-accent/14 text-accent'}`}

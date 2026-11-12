@@ -1,33 +1,36 @@
 # Diseño
 
 ## Dirección
-Que se sienta como una app nativa de iOS: limpia, rápida y con números grandes y claros. Nada de estética genérica de plantilla.
-Sigue el modo claro u oscuro del sistema (prefers-color-scheme).
+Basado en el proyecto de Stitch "App de Nutrición": fondo lila muy claro, tarjetas blancas grandes y muy redondeadas, números enormes, botones principales en píldora casi negra y el verde reservado para calorías.
+Sigue el modo claro u oscuro del sistema (prefers-color-scheme). El oscuro se deriva de la misma paleta.
 
 ## Tipografía
-- Fuente del sistema: -apple-system, "SF Pro", system-ui.
+- Plus Jakarta Sans variable (200–800), autoalojada en `public/fonts` para que funcione offline. Respaldo: -apple-system, system-ui.
 - Números con font-variant-numeric: tabular-nums.
-- Escala: 34 (kcal principal), 22 (títulos), 17 (cuerpo), 15 (secundario), 13 (etiquetas).
+- Escala: 44 (kcal principal), 34 (display), 22 (títulos), 18 (secciones), 16 (cuerpo), 14 (secundario), 12 (etiquetas).
 
 ## Colores
-| Rol | Claro | Oscuro |
-|---|---|---|
-| Fondo | #F2F2F7 | #000000 |
-| Tarjeta | #FFFFFF | #1C1C1E |
-| Texto | #111111 | #F5F5F7 |
-| Texto secundario | #6B6B70 | #98989F |
-| Acento / calorías | #16A34A | #22C55E |
-| Proteína | #EF4444 | #F87171 |
-| Carbohidratos | #F59E0B | #FBBF24 |
-| Grasa | #3B82F6 | #60A5FA |
-| Peligro | #DC2626 | #F87171 |
-Los colores de macros son fijos en toda la app (anillo, barras, chips, gráficos).
+| Rol | Token | Claro | Oscuro |
+|---|---|---|---|
+| Fondo | bg | #FAF8FE | #121316 |
+| Tarjeta | card | #FFFFFF | #1D1E22 |
+| Relleno interno (paneles, segmentado, chips) | fill | #F1EFF5 | #2A2B30 |
+| Texto | text | #1A1B1F | #F2F1F6 |
+| Texto secundario | text-2 | #64656C | #A4A5AD |
+| Botón principal (fondo / texto) | ink / on-ink | #1C1D21 / #FFFFFF | #F2F1F6 / #121316 |
+| Calorías (anillo, rellenos) | brand | #4EBA6F | #5FCF80 |
+| Acento en texto e íconos | accent | #006D34 | #71DC8D |
+| Proteína | protein | #FF7843 | #FF9466 |
+| Carbohidratos | carbs | #4EBA6F | #5FCF80 |
+| Grasa | fat | #5B8DEF | #84A9FF |
+| Peligro | danger | #BA1A1A | #FFB4AB |
+Los colores de macros son fijos en toda la app (anillo, barras, chips, gráficos). `brand` no se usa para texto pequeño (contraste bajo); para eso está `accent`.
 
 ## Forma y espacio
 - Espaciado en múltiplos de 4. Margen lateral de 16.
-- Radios: tarjetas 20, botones 14, chips 999.
-- Sombras mínimas en modo claro, ninguna en oscuro (se usa el contraste del fondo).
-- Áreas táctiles de mínimo 44x44.
+- Radios: tarjetas 28, bloques internos e imágenes 18, botones y chips en píldora (999).
+- Sombra suave y amplia en modo claro, ninguna en oscuro (se usa el contraste del fondo).
+- Áreas táctiles de mínimo 44x44. Botón principal de 52 de alto.
 
 ## Navegación
 Barra inferior fija con safe area: Hoy · Historial · [ + Registrar ] (botón central destacado) · Progreso · Ajustes.

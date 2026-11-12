@@ -97,7 +97,7 @@ export function ChipGroup<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.value)}
-            className={`min-h-11 shrink-0 rounded-full px-3.5 text-secondary font-medium transition-colors duration-150 ease-out ${active ? 'bg-accent text-white' : 'bg-card text-text shadow-card'}`}
+            className={`min-h-11 shrink-0 rounded-full px-3.5 text-secondary font-medium transition-colors duration-150 ease-out ${active ? 'bg-ink text-on-ink' : 'bg-card text-text shadow-card'}`}
           >
             {o.label}
           </button>
@@ -139,7 +139,7 @@ export function ChoiceRow({
         {detail && <span className="block text-secondary text-text-2">{detail}</span>}
       </span>
       <span
-        className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-150 ease-out ${selected ? 'border-accent bg-accent text-white' : 'border-text-2/40'}`}
+        className={`flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-150 ease-out ${selected ? 'border-ink bg-ink text-on-ink' : 'border-transparent bg-fill'}`}
         aria-hidden="true"
       >
         {selected && (

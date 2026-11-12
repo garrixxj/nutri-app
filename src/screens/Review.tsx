@@ -96,7 +96,7 @@ export function Review({
 
       <div className="mt-2 flex items-center gap-4 px-4">
         {thumb && (
-          <img src={thumb} alt="Foto de la comida" width={72} height={72} className="size-18 shrink-0 rounded-button object-cover" />
+          <img src={thumb} alt="Foto de la comida" width={72} height={72} className="size-18 shrink-0 rounded-inner object-cover" />
         )}
         <div className="min-w-0">
           <p className="text-title font-bold tabular">
@@ -193,7 +193,7 @@ function ReviewRow({
       <div className="mt-2 flex items-center gap-3">
         <label
           htmlFor={gramsId}
-          className={`flex min-h-11 items-center gap-1 rounded-button bg-bg px-3 ${item ? '' : 'ring-2 ring-danger'}`}
+          className={`flex min-h-11 items-center gap-1 rounded-button bg-fill px-3 ${item ? '' : 'ring-2 ring-danger'}`}
         >
           <input
             id={gramsId}

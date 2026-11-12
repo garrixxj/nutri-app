@@ -1,33 +1,50 @@
 @import 'tailwindcss';
 
 /* Design tokens from DESIGN.md. Light is the default; dark follows the system. */
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('/fonts/plus-jakarta-sans-latin-wght.woff2') format('woff2');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Design tokens from DESIGN.md (Stitch "App de Nutrición"). Light is the default; dark follows the system. */
 :root {
-  --bg: #f2f2f7;
+  --bg: #faf8fe;
   --card: #ffffff;
-  --text: #111111;
-  --text-2: #6b6b70;
-  --accent: #16a34a;
-  --protein: #ef4444;
-  --carbs: #f59e0b;
-  --fat: #3b82f6;
-  --danger: #dc2626;
-  --separator: rgb(60 60 67 / 0.12);
-  --card-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 1px 8px rgb(0 0 0 / 0.04);
+  --fill: #f1eff5;
+  --text: #1a1b1f;
+  --text-2: #64656c;
+  --ink: #1c1d21;
+  --on-ink: #ffffff;
+  --brand: #4eba6f;
+  --accent: #006d34;
+  --protein: #ff7843;
+  --carbs: #4eba6f;
+  --fat: #5b8def;
+  --danger: #ba1a1a;
+  --separator: rgb(26 27 31 / 0.08);
+  --card-shadow: 0 1px 2px rgb(28 29 33 / 0.04), 0 8px 24px rgb(28 29 33 / 0.05);
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
-    --card: #1c1c1e;
-    --text: #f5f5f7;
-    --text-2: #98989f;
-    --accent: #22c55e;
-    --protein: #f87171;
-    --carbs: #fbbf24;
-    --fat: #60a5fa;
-    --danger: #f87171;
-    --separator: rgb(84 84 88 / 0.6);
+    --bg: #121316;
+    --card: #1d1e22;
+    --fill: #2a2b30;
+    --text: #f2f1f6;
+    --text-2: #a4a5ad;
+    --ink: #f2f1f6;
+    --on-ink: #121316;
+    --brand: #5fcf80;
+    --accent: #71dc8d;
+    --protein: #ff9466;
+    --carbs: #5fcf80;
+    --fat: #84a9ff;
+    --danger: #ffb4ab;
+    --separator: rgb(255 255 255 / 0.08);
     --card-shadow: none;
   }
 }
@@ -37,6 +54,10 @@
   --color-card: var(--card);
   --color-text: var(--text);
   --color-text-2: var(--text-2);
+  --color-fill: var(--fill);
+  --color-ink: var(--ink);
+  --color-on-ink: var(--on-ink);
+  --color-brand: var(--brand);
   --color-accent: var(--accent);
   --color-protein: var(--protein);
   --color-carbs: var(--carbs);
@@ -44,22 +65,25 @@
   --color-danger: var(--danger);
   --color-separator: var(--separator);
 
-  --font-sans: -apple-system, 'SF Pro Text', 'SF Pro', system-ui, sans-serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
 
-  /* Type scale: 34 / 22 / 17 / 15 / 13 */
+  /* Type scale (Stitch): 44 metric / 34 / 22 / 16 / 14 / 12 */
+  --text-metric: 44px;
+  --text-metric--line-height: 48px;
   --text-display: 34px;
-  --text-display--line-height: 41px;
+  --text-display--line-height: 40px;
   --text-title: 22px;
   --text-title--line-height: 28px;
-  --text-body: 17px;
+  --text-body: 16px;
   --text-body--line-height: 22px;
-  --text-secondary: 15px;
+  --text-secondary: 14px;
   --text-secondary--line-height: 20px;
-  --text-label: 13px;
-  --text-label--line-height: 18px;
+  --text-label: 12px;
+  --text-label--line-height: 16px;
 
-  --radius-card: 20px;
-  --radius-button: 14px;
+  --radius-card: 28px;
+  --radius-inner: 18px;
+  --radius-button: 999px;
 
   --shadow-card: var(--card-shadow);
 }
@@ -76,7 +100,7 @@
     background: var(--bg);
     color: var(--text);
     font-family: var(--font-sans);
-    font-size: 17px;
+    font-size: 16px;
     line-height: 22px;
     -webkit-font-smoothing: antialiased;
     overscroll-behavior-y: none;

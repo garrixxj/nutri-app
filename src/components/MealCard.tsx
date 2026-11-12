@@ -46,7 +46,7 @@ export function MealCard({
                 className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-150 ease-out active:bg-text-2/8"
               >
                 {entry.photoThumb && (
-                  <img src={entry.photoThumb} alt="" width={40} height={40} className="size-10 shrink-0 rounded-[10px] object-cover" />
+                  <img src={entry.photoThumb} alt="" width={40} height={40} className="size-10 shrink-0 rounded-xl object-cover" />
                 )}
                 <span className="min-w-0 flex-1">
                   {entry.items.map((item, i) => (

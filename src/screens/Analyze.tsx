@@ -270,9 +270,9 @@ function LoadingState({ thumb, mode, onCancel }: { thumb?: string; mode: Mode; o
     <div className="px-4" aria-live="polite">
       <div className="flex items-center gap-4">
         {thumb ? (
-          <img src={thumb} alt="" width={72} height={72} className="size-18 shrink-0 rounded-button object-cover" />
+          <img src={thumb} alt="" width={72} height={72} className="size-18 shrink-0 rounded-inner object-cover" />
         ) : (
-          <div className="size-18 shrink-0 animate-pulse rounded-button bg-text-2/15" />
+          <div className="size-18 shrink-0 animate-pulse rounded-inner bg-text-2/15" />
         )}
         <div className="flex-1">
           <p className="text-body font-semibold">{mode === 'photo' ? 'Analizando tu plato…' : 'Analizando tu comida…'}</p>

@@ -31,7 +31,7 @@ export function CalorieRing({ consumed, goal }: { consumed: number; goal: number
         aria-label={`${formatInt(consumed)} de ${formatInt(goal)} kcal consumidas`}
       />
       <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="size-full -rotate-90" aria-hidden="true">
-        <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" strokeWidth={STROKE} className="stroke-accent/15" />
+        <circle cx={SIZE / 2} cy={SIZE / 2} r={RADIUS} fill="none" strokeWidth={STROKE} className="stroke-fill" />
         <circle
           cx={SIZE / 2}
           cy={SIZE / 2}
@@ -41,7 +41,7 @@ export function CalorieRing({ consumed, goal }: { consumed: number; goal: number
           strokeLinecap="round"
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={CIRCUMFERENCE * (1 - progress)}
-          className={`transition-[stroke-dashoffset,stroke] duration-250 ease-out ${over ? 'stroke-danger' : 'stroke-accent'} ${progress === 0 ? 'opacity-0' : ''}`}
+          className={`transition-[stroke-dashoffset,stroke] duration-250 ease-out ${over ? 'stroke-danger' : 'stroke-brand'} ${progress === 0 ? 'opacity-0' : ''}`}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">

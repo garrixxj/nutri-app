@@ -59,11 +59,11 @@ export function EntrySheet({ entry, onClose }: { entry: Entry | null; onClose: (
               alt={`Foto de ${MEAL_LABELS[shown.meal].toLowerCase()}`}
               width={96}
               height={96}
-              className="mt-3 size-24 rounded-button object-cover"
+              className="mt-3 size-24 rounded-inner object-cover"
             />
           )}
 
-          <ul className="mt-3 divide-y divide-separator rounded-button bg-bg">
+          <ul className="mt-3 divide-y divide-separator rounded-inner bg-fill">
             {shown.items.map((item, i) => (
               <li key={i} className="px-3 py-2.5">
                 <div className="flex items-baseline justify-between gap-3">
