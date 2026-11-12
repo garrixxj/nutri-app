@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { formatInt } from '../domain/format.ts'
 
 const SIZE = 120
@@ -10,7 +10,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
  * Consumed-kcal ring with the percentage in the middle. The arc fills as you eat;
  * past the goal it turns red. A hidden <progress> carries the real values for VoiceOver.
  */
-export function CalorieRing({ consumed, goal }: { consumed: number; goal: number }) {
+export function CalorieRing({ consumed, goal, center }: { consumed: number; goal: number; center?: ReactNode }) {
   const over = consumed > goal
   const target = goal > 0 ? Math.min(consumed / goal, 1) : 0
   const percent = goal > 0 ? Math.round((consumed / goal) * 100) : 0
@@ -44,9 +44,13 @@ export function CalorieRing({ consumed, goal }: { consumed: number; goal: number
           className={`transition-[stroke-dashoffset,stroke] duration-250 ease-out ${over ? 'stroke-danger' : 'stroke-brand'} ${progress === 0 ? 'opacity-0' : ''}`}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
-        <span className={`text-title font-bold tabular ${over ? 'text-danger' : ''}`}>{percent}%</span>
-        <span className="text-label font-medium text-text-2">de la meta</span>
+      <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden={center ? undefined : true}>
+        {center ?? (
+          <>
+            <span className={`text-title font-bold tabular ${over ? 'text-danger' : ''}`}>{percent}%</span>
+            <span className="text-label font-medium text-text-2">de la meta</span>
+          </>
+        )}
       </div>
     </div>
   )
