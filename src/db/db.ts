@@ -1,6 +1,6 @@
 import { Dexie, type EntityTable } from 'dexie'
+import { DEFAULT_MODEL_CHAIN, resolveModelChain } from '../ai/models.ts'
 import {
-  DEFAULT_GEMINI_MODEL,
   PROFILE_ID,
   SETTINGS_ID,
   type Entry,
@@ -64,9 +64,19 @@ export async function saveProfile(profile: Omit<Profile, 'id' | 'updatedAt'>): P
   await db.profile.put({ ...profile, id: PROFILE_ID, updatedAt: Date.now() })
 }
 
-export async function getSettings(): Promise<Settings> {
+/** Settings with the model chain always resolved (old single-model settings are migrated on read). */
+export async function getSettings(): Promise<Settings & { geminiModels: string[] }> {
   const stored = await db.settings.get(SETTINGS_ID)
-  return stored ?? { id: SETTINGS_ID, geminiApiKey: '', geminiModel: DEFAULT_GEMINI_MODEL }
+  if (!stored) return { id: SETTINGS_ID, geminiApiKey: '', geminiModels: [...DEFAULT_MODEL_CHAIN] }
+  const { geminiModel: _legacy, ...rest } = stored
+  return { ...rest, geminiModels: resolveModelChain(stored) }
+}
+
+/** Stores the migrated model chain once, so old settings stop carrying `geminiModel`. */
+export async function migrateModelSettings(): Promise<void> {
+  const stored = await db.settings.get(SETTINGS_ID)
+  if (!stored || (stored.geminiModels && stored.geminiModel === undefined)) return
+  await db.settings.put(await getSettings())
 }
 
 export async function updateSettings(patch: Partial<Omit<Settings, 'id'>>): Promise<void> {

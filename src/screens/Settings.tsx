@@ -5,7 +5,9 @@ import { usageToday } from '../db/ai-usage.ts'
 import { db, getSettings, retryRead, saveProfile, updateSettings } from '../db/db.ts'
 import { BackupError, parseBackup, type ParsedBackup } from '../db/backup.ts'
 import { buildBackup, markBackupExported, restoreBackup } from '../db/backup-store.ts'
-import { DEFAULT_GEMINI_MODEL, type Profile, type Settings as SettingsData, type Targets } from '../db/types.ts'
+import { type Profile, type Settings as SettingsData, type Targets } from '../db/types.ts'
+import { verifyApiKey } from '../ai/gemini.ts'
+import { DEFAULT_MODEL_CHAIN, isDefaultChain, parseModelList } from '../ai/models.ts'
 import { MacroLabel, NumberRow, RowGroup } from '../components/fields.tsx'
 import { IconChevronRight } from '../components/icons.tsx'
 import { Button, ScreenHeader, SectionTitle, TabScreen } from '../components/ui.tsx'
@@ -24,7 +26,7 @@ export function Settings({ profile }: { profile: Profile }) {
   return (
     <TabScreen>
       <ScreenHeader title="Ajustes" />
-      {settings && <AiSection key={`${settings.geminiApiKey}|${settings.geminiModel}`} settings={settings} />}
+      {settings && <AiSection settings={settings} />}
       <TargetsSection key={targetsKey} profile={profile} />
       <WaterGoalSection key={`water-${waterGoalMl(profile)}`} profile={profile} />
       <ProfileSection profile={profile} />
@@ -46,17 +48,54 @@ function Footnote({ children, tone = 'muted' }: { children: ReactNode; tone?: 'm
 
 /* ─────────────── IA ─────────────── */
 
-function AiSection({ settings }: { settings: SettingsData }) {
-  const [apiKey, setApiKey] = useState(settings.geminiApiKey)
-  const [model, setModel] = useState(settings.geminiModel)
-  const [showKey, setShowKey] = useState(false)
-  const keyId = useId()
-  const modelId = useId()
+type ResolvedSettings = SettingsData & { geminiModels: string[] }
 
-  const dirty = apiKey.trim() !== settings.geminiApiKey || (model.trim() || DEFAULT_GEMINI_MODEL) !== settings.geminiModel
+function AiSection({ settings }: { settings: ResolvedSettings }) {
+  const [apiKey, setApiKey] = useState(settings.geminiApiKey)
+  const [modelsText, setModelsText] = useState(settings.geminiModels.join('\n'))
+  const [showKey, setShowKey] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [keyStatus, setKeyStatus] = useState<{ tone: 'muted' | 'ok' | 'error'; text: string } | null>(null)
+  const keyId = useId()
+  const modelsId = useId()
+
+  const models = parseModelList(modelsText)
+  const keyChanged = apiKey.trim() !== settings.geminiApiKey
+  const modelsChanged = models.join('\n') !== settings.geminiModels.join('\n')
+  const dirty = keyChanged || modelsChanged
 
   async function save() {
-    await updateSettings({ geminiApiKey: apiKey.trim(), geminiModel: model.trim() || DEFAULT_GEMINI_MODEL })
+    setSaving(true)
+    const patch: Partial<Omit<SettingsData, 'id'>> = {}
+    if (modelsChanged) patch.geminiModels = models.length > 0 ? models : [...DEFAULT_MODEL_CHAIN]
+    try {
+      if (keyChanged) {
+        const key = apiKey.trim()
+        if (!key) {
+          patch.geminiApiKey = ''
+          setKeyStatus(null)
+        } else {
+          // Only a real call says whether a key works; its format changes over time.
+          setKeyStatus({ tone: 'muted', text: 'Verificando la key con Google…' })
+          const check = await verifyApiKey(key)
+          if (check.result === 'invalid') {
+            setKeyStatus({ tone: 'error', text: `Google rechazó esta key y no la guardé. Detalle: ${check.detail}` })
+            if (patch.geminiModels) await updateSettings(patch)
+            return
+          }
+          patch.geminiApiKey = key
+          setKeyStatus(
+            check.result === 'valid'
+              ? { tone: 'ok', text: 'Key verificada con Google y guardada.' }
+              : { tone: 'muted', text: `La guardé, pero no pude verificarla ahora. Detalle: ${check.detail}` },
+          )
+        }
+      }
+      await updateSettings(patch)
+      if (modelsChanged) setModelsText(patch.geminiModels?.join('\n') ?? modelsText)
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -71,7 +110,10 @@ function AiSection({ settings }: { settings: SettingsData }) {
             id={keyId}
             type={showKey ? 'text' : 'password'}
             value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
+            onChange={(e) => {
+              setApiKey(e.target.value)
+              setKeyStatus(null)
+            }}
             placeholder="Pega tu key de Gemini"
             autoComplete="off"
             autoCapitalize="none"
@@ -91,42 +133,46 @@ function AiSection({ settings }: { settings: SettingsData }) {
           <span className="text-body">Análisis con IA hoy</span>
           <span className="text-body font-semibold tabular">{formatInt(usageToday(settings))}</span>
         </div>
-        <div className="flex min-h-12 items-center gap-2 px-4">
-          <label htmlFor={modelId} className="shrink-0 text-body">
-            Modelo
+        <div className="flex flex-col gap-1 px-4 py-3">
+          <label htmlFor={modelsId} className="text-body">
+            Modelos, en orden
           </label>
-          <input
-            id={modelId}
-            type="text"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            placeholder={DEFAULT_GEMINI_MODEL}
+          <textarea
+            id={modelsId}
+            value={modelsText}
+            onChange={(e) => setModelsText(e.target.value)}
+            rows={Math.max(4, models.length)}
             autoComplete="off"
             autoCapitalize="none"
             autoCorrect="off"
             spellCheck={false}
-            className="min-w-0 flex-1 bg-transparent py-2 text-right text-body outline-none placeholder:text-text-2/60"
+            className="w-full resize-none bg-transparent text-body leading-7 text-text-2 outline-none"
           />
         </div>
       </RowGroup>
+      {keyStatus && <Footnote tone={keyStatus.tone}>{keyStatus.text}</Footnote>}
+      <Footnote>
+        Uno por línea. Si un modelo está saturado (503), sin cuota (429), no existe (404) o tarda más de 25 segundos, se usa el
+        siguiente.
+      </Footnote>
       <Footnote>
         El contador se reinicia junto con la cuota gratis de Google (medianoche en California, entre las 3 y las 5 de la
         mañana en Chile). Tu límite diario aparece en Google AI Studio.
       </Footnote>
       <Footnote>
-        La key se guarda solo en este teléfono y nunca va en el respaldo. Créala gratis en{' '}
+        La key se guarda solo en este teléfono y nunca va en el respaldo. Al guardarla se prueba con Google. Créala gratis en{' '}
         <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" className="font-medium text-accent">
           Google AI Studio
         </a>
         .
       </Footnote>
       <div className="flex gap-2 px-4 pt-3">
-        <Button className="flex-1" disabled={!dirty} onClick={save}>
-          {dirty || !settings.geminiApiKey ? 'Guardar' : 'Guardado'}
+        <Button className="flex-1" disabled={!dirty || saving} onClick={save}>
+          {saving ? 'Guardando…' : dirty || !settings.geminiApiKey ? 'Guardar' : 'Guardado'}
         </Button>
-        {model.trim() !== DEFAULT_GEMINI_MODEL && (
-          <Button variant="secondary" onClick={() => setModel(DEFAULT_GEMINI_MODEL)}>
-            Modelo por defecto
+        {!isDefaultChain(models) && (
+          <Button variant="secondary" onClick={() => setModelsText(DEFAULT_MODEL_CHAIN.join('\n'))}>
+            Modelos por defecto
           </Button>
         )}
       </div>

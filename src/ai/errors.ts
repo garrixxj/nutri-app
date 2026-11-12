@@ -11,6 +11,15 @@ export type AiErrorKind =
   | 'no_food'
   | 'bad_response'
   | 'cancelled'
+  | 'all_models_failed'
+
+/** One model tried during an analysis, for "Ver detalle técnico". Never holds the key. */
+export interface ModelAttempt {
+  model: string
+  /** HTTP status, or what happened when there was none. */
+  status: number | 'timeout' | 'network'
+  message: string
+}
 
 /** What the error screen should offer besides manual entry. */
 export type AiErrorAction = 'settings' | 'retry' | 'none'
@@ -19,6 +28,8 @@ export class AiError extends Error {
   override name = 'AiError'
   readonly kind: AiErrorKind
   readonly action: AiErrorAction
+  /** Models tried before giving up, oldest first. */
+  attempts: ModelAttempt[] = []
 
   constructor(kind: AiErrorKind, message: string, action: AiErrorAction) {
     super(message)
@@ -36,7 +47,7 @@ export function aiError(kind: AiErrorKind, model = ''): AiError {
     case 'model_not_found':
       return new AiError(
         kind,
-        `El modelo "${model}" no existe o no está disponible con tu key. Cámbialo en Ajustes (el recomendado es gemini-flash-latest).`,
+        `El modelo "${model}" no existe o no está disponible con tu key. Revisa la lista de modelos en Ajustes.`,
         'settings',
       )
     case 'quota_daily':
@@ -61,6 +72,12 @@ export function aiError(kind: AiErrorKind, model = ''): AiError {
       return new AiError(kind, 'La respuesta de la IA vino incompleta. Vuelve a intentarlo.', 'retry')
     case 'cancelled':
       return new AiError(kind, 'Análisis cancelado.', 'none')
+    case 'all_models_failed':
+      return new AiError(
+        kind,
+        'Ningún modelo de Gemini pudo responder ahora: están saturados, sin cuota o tardaron demasiado. Inténtalo de nuevo en un rato.',
+        'retry',
+      )
   }
 }
 
@@ -70,6 +87,17 @@ interface GoogleErrorBody {
     status?: string
     details?: { '@type'?: string; reason?: string; violations?: { quotaId?: string }[] }[]
   }
+}
+
+/** Google's own error message from a response body, for the technical detail. */
+export function googleErrorMessage(bodyText: string): string {
+  try {
+    const message = (JSON.parse(bodyText) as GoogleErrorBody).error?.message
+    if (message) return message
+  } catch {
+    // Not JSON.
+  }
+  return bodyText.trim().slice(0, 200)
 }
 
 /** Maps a non-200 Gemini response to a user-facing error. */

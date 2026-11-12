@@ -3,7 +3,8 @@ import { quotaDay, usageToday } from '../db/ai-usage.ts'
 import { scaleToGrams } from '../domain/scale.ts'
 import { itemWarning, normalizeItem } from '../domain/sanity.ts'
 import { AiError, classifyHttpError } from './errors.ts'
-import { analyzeMeal, buildRequestBody, parseGenerateResponse } from './gemini.ts'
+import { analyzeMeal, buildRequestBody, parseGenerateResponse, verifyApiKey } from './gemini.ts'
+import { DEFAULT_MODEL_CHAIN, MODEL_TIMEOUT_MS, parseModelList, resolveModelChain } from './models.ts'
 
 const okBody = (payload: unknown) => ({
   candidates: [{ finishReason: 'STOP', content: { parts: [{ text: JSON.stringify(payload) }] } }],
@@ -111,34 +112,129 @@ describe('buildRequestBody', () => {
 })
 
 describe('analyzeMeal', () => {
-  afterEach(() => vi.unstubAllGlobals())
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.useRealTimers()
+  })
+  const ok = () => new Response(JSON.stringify(okBody({ items: [marraqueta], assumptions: [] })))
+  const fail = (status: number, message = 'boom') => new Response(JSON.stringify({ error: { message } }), { status })
+  const urlModel = (call: unknown[]) => String(call[0]).split('/models/')[1]?.split(':')[0]
 
   it('fails fast without an API key', async () => {
-    await expect(analyzeMeal({ apiKey: ' ', model: 'm', text: 'pan' })).rejects.toMatchObject({ kind: 'no_key' })
+    await expect(analyzeMeal({ apiKey: ' ', models: ['m'], text: 'pan' })).rejects.toMatchObject({ kind: 'no_key' })
   })
 
-  it('calls the configured model with the key in a header and counts the request', async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify(okBody({ items: [marraqueta], assumptions: [] }))))
+  it('calls the first model with the key in a header, counts it and says which model answered', async () => {
+    const fetchMock = vi.fn(async () => ok())
     vi.stubGlobal('fetch', fetchMock)
     const counted = vi.fn()
-    await analyzeMeal({ apiKey: 'k', model: 'gemini-flash-latest', text: 'pan' }, counted)
+    const res = await analyzeMeal({ apiKey: 'k', models: ['gemini-3.6-flash', 'gemini-3.5-flash'], text: 'pan' }, counted)
     const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
-    expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent')
+    expect(url).toBe('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent')
     expect((init.headers as Record<string, string>)['x-goog-api-key']).toBe('k')
     expect(url).not.toContain('key=')
     expect(counted).toHaveBeenCalledOnce()
+    expect(fetchMock).toHaveBeenCalledOnce()
+    expect(res.model).toBe('gemini-3.6-flash')
   })
 
-  it('does not count rejected requests', async () => {
+  it('uses the default chain when the list is empty', async () => {
+    const fetchMock = vi.fn(async () => ok())
+    vi.stubGlobal('fetch', fetchMock)
+    await analyzeMeal({ apiKey: 'k', models: [], text: 'pan' })
+    expect(urlModel(fetchMock.mock.calls[0] as unknown[])).toBe(DEFAULT_MODEL_CHAIN[0])
+  })
+
+  it('moves to the next model on 503, 429 and 404', async () => {
+    const responses = [fail(503), fail(429), fail(404), ok()]
+    const fetchMock = vi.fn(async () => responses.shift() as Response)
+    vi.stubGlobal('fetch', fetchMock)
+    const onModel = vi.fn()
+    const res = await analyzeMeal({ apiKey: 'k', models: ['a', 'b', 'c', 'd'], text: 'pan', onModel })
+    expect(fetchMock.mock.calls.map((c) => urlModel(c as unknown[]))).toEqual(['a', 'b', 'c', 'd'])
+    expect(onModel.mock.calls.map((c) => c[0])).toEqual(['a', 'b', 'c', 'd'])
+    expect(res.model).toBe('d')
+  })
+
+  it('stops at an invalid key: another model would not help', async () => {
+    const fetchMock = vi.fn(async () => fail(400, 'API key not valid. Please pass a valid API key.'))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(analyzeMeal({ apiKey: 'k', models: ['a', 'b'], text: 'pan' })).rejects.toMatchObject({ kind: 'invalid_key' })
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+
+  it('moves on when a model takes longer than 25 s', async () => {
+    vi.useFakeTimers()
+    const fetchMock = vi.fn((_url: string, init: RequestInit) =>
+      fetchMock.mock.calls.length === 1
+        ? new Promise<Response>((_resolve, reject) => init.signal?.addEventListener('abort', () => reject(new DOMException('Aborted', 'AbortError'))))
+        : Promise.resolve(ok()),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+    const pending = analyzeMeal({ apiKey: 'k', models: ['slow', 'fast'], text: 'pan' })
+    await vi.advanceTimersByTimeAsync(MODEL_TIMEOUT_MS)
+    await expect(pending).resolves.toMatchObject({ model: 'fast' })
+  })
+
+  it('lists every attempt when all fail, without the key', async () => {
+    const responses = [fail(503, 'The model is overloaded.'), fail(503, 'bad key SECRETKEY123 here')]
+    vi.stubGlobal('fetch', vi.fn(async () => responses.shift() as Response))
+    const err = (await analyzeMeal({ apiKey: 'SECRETKEY123', models: ['a', 'b'], text: 'pan' }).catch((e: unknown) => e)) as AiError
+    expect(err.kind).toBe('all_models_failed')
+    expect(err.attempts).toEqual([
+      { model: 'a', status: 503, message: 'The model is overloaded.' },
+      { model: 'b', status: 503, message: 'bad key ••• here' },
+    ])
+    expect(JSON.stringify(err.attempts)).not.toContain('SECRETKEY123')
+  })
+
+  it('keeps the quota message when every model is out of quota', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 429 })))
     const counted = vi.fn()
-    await expect(analyzeMeal({ apiKey: 'k', model: 'm', text: 'pan' }, counted)).rejects.toMatchObject({ kind: 'quota_daily' })
+    const err = (await analyzeMeal({ apiKey: 'k', models: ['a', 'b'], text: 'pan' }, counted).catch((e: unknown) => e)) as AiError
+    expect(err.kind).toBe('quota_daily')
+    expect(err.attempts).toHaveLength(2)
     expect(counted).not.toHaveBeenCalled()
   })
 
-  it('maps fetch failures to network errors', async () => {
+  it('maps fetch failures to network errors without trying more models', async () => {
+    const fetchMock = vi.fn(async () => Promise.reject(new TypeError('Load failed')))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(analyzeMeal({ apiKey: 'k', models: ['a', 'b'], text: 'pan' })).rejects.toMatchObject({ kind: 'network' })
+    expect(fetchMock).toHaveBeenCalledOnce()
+  })
+})
+
+describe('verifyApiKey', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('is valid when listing models works, and never checks the format', async () => {
+    const fetchMock = vi.fn(async () => new Response('{}'))
+    vi.stubGlobal('fetch', fetchMock)
+    await expect(verifyApiKey(' AQ.nueva-key ')).resolves.toEqual({ result: 'valid' })
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    expect(url).not.toContain('AQ.')
+    expect((init.headers as Record<string, string>)['x-goog-api-key']).toBe('AQ.nueva-key')
+  })
+
+  it('is invalid on 400/401/403 and unverified offline', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ error: { message: 'API key not valid.' } }), { status: 400 })))
+    await expect(verifyApiKey('x')).resolves.toEqual({ result: 'invalid', detail: 'HTTP 400: API key not valid.' })
     vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('Load failed'))))
-    await expect(analyzeMeal({ apiKey: 'k', model: 'm', text: 'pan' })).rejects.toMatchObject({ kind: 'network' })
+    await expect(verifyApiKey('x')).resolves.toMatchObject({ result: 'unverified' })
+  })
+})
+
+describe('model chain', () => {
+  it('migrates the old default and keeps a custom model first', () => {
+    expect(resolveModelChain({ geminiModel: 'gemini-flash-latest' })).toEqual([...DEFAULT_MODEL_CHAIN])
+    expect(resolveModelChain({})).toEqual([...DEFAULT_MODEL_CHAIN])
+    expect(resolveModelChain({ geminiModel: 'gemini-3.5-flash' })).toEqual(['gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'])
+    expect(resolveModelChain({ geminiModel: 'gemini-flash-latest', geminiModels: ['x', 'y'] })).toEqual(['x', 'y'])
+  })
+
+  it('parses one model per line or comma, without blanks or repeats', () => {
+    expect(parseModelList(' a \n\nb, a\n c ')).toEqual(['a', 'b', 'c'])
   })
 })
 

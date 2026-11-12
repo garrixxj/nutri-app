@@ -93,13 +93,15 @@ export interface WaterLog {
 }
 
 export const SETTINGS_ID = 'settings'
-export const DEFAULT_GEMINI_MODEL = 'gemini-flash-latest'
 
 /** Device-only settings. Never included in the JSON backup (holds the API key). */
 export interface Settings {
   id: typeof SETTINGS_ID
   geminiApiKey: string
-  geminiModel: string
+  /** Models tried in order (see ai/models.ts). Missing on settings saved before the chain. */
+  geminiModels?: string[]
+  /** Legacy single model; only read to migrate it into `geminiModels`. */
+  geminiModel?: string
   lastBackupAt?: number
   /** Gemini quota day (Pacific time, YYYY-MM-DD) of `aiUsageCount`. */
   aiUsageDay?: string

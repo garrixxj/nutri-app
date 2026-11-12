@@ -31,7 +31,7 @@ Se usa en iPhone como PWA instalada desde Safari ("Agregar a pantalla de inicio"
 - profile: sex, age, heightCm, weightKg, activityLevel, goal ('gain_muscle' | 'maintain' | 'cut'), targets { kcal, protein, carbs, fat }
 - entries: id, date (YYYY-MM-DD), meal ('desayuno' | 'almuerzo' | 'once' | 'cena' | 'snack'), items[], source ('photo' | 'text' | 'barcode' | 'manual' | 'favorite'), photoThumb?, createdAt
 - item: name, grams, kcal, protein, carbs, fat, confidence?
-- settings: geminiApiKey, geminiModel
+- settings: geminiApiKey, geminiModels (cadena; geminiModel antiguo se migra)
 - Fase 2: favorites, weights, water
 
 ## Cálculo de metas
@@ -42,7 +42,7 @@ Se usa en iPhone como PWA instalada desde Safari ("Agregar a pantalla de inicio"
 
 ## IA de comida
 - Endpoint REST generateContent con responseMimeType "application/json" y responseSchema.
-- Modelo configurable en Ajustes; por defecto "gemini-flash-latest".
+- Cadena de modelos configurable en Ajustes, por defecto gemini-3.6-flash → gemini-3.5-flash → gemini-3.5-flash-lite → gemini-3.1-flash-lite. Con 503, 429, 404 o más de 25 s sin respuesta se pasa al siguiente. No usar gemini-flash-latest (apunta a modelos saturados). La key no se valida por formato, solo con una llamada real al guardarla.
 - Prompt: nutricionista experto en comida chilena. Identifica cada alimento, estima gramos y calcula kcal, proteína, carbohidratos y grasa por ítem. Considera comida chilena (marraqueta, hallulla, palta, completo, sopaipilla, porotos, pastel de choclo, cazuela, etc.). Si el usuario escribe una descripción, tiene prioridad sobre la foto. Devuelve confidence 0-1 por ítem y los supuestos usados.
 - Siempre mostrar una pantalla de revisión editable antes de guardar. Cambiar los gramos recalcula los macros de forma proporcional.
 - Error 429 (cuota agotada): mensaje claro en español y opción de registro manual.
