@@ -130,3 +130,20 @@ export function IconClose(p: IconProps) {
     </Svg>
   )
 }
+
+export function IconDroplet(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M12 3.5c3.2 3.9 6 7.4 6 10.5a6 6 0 0 1-12 0c0-3.1 2.8-6.6 6-10.5z" />
+    </Svg>
+  )
+}
+
+export function IconUndo(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M9 14L4.5 9.5 9 5" />
+      <path d="M4.5 9.5H14a5.5 5.5 0 0 1 0 11h-3" />
+    </Svg>
+  )
+}

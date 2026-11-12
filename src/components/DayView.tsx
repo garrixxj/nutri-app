@@ -9,6 +9,7 @@ import { EntrySheet } from './EntrySheet.tsx'
 import { MacroBars } from './MacroBars.tsx'
 import { MealCard, MealSheet } from './MealCard.tsx'
 import { Button, Card } from './ui.tsx'
+import { WaterCard } from './WaterCard.tsx'
 
 /** One day's summary (ring + macros) and its meals. Shared by Hoy and Historial. */
 export function DayView({
@@ -97,6 +98,8 @@ export function DayView({
           />
         ))}
       </div>
+
+      <WaterCard date={date} profile={profile} />
 
       <MealSheet
         meal={openMeal}

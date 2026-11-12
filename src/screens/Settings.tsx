@@ -13,6 +13,7 @@ import { formatDateTime, relativeDay, toISODate } from '../domain/dates.ts'
 import { formatInt, formatDecimal, parseDecimal } from '../domain/format.ts'
 import { ACTIVITY_OPTIONS, GOAL_OPTIONS, SEX_OPTIONS } from '../domain/labels.ts'
 import { calculateTargets } from '../domain/targets.ts'
+import { WATER_ML_PER_KG, waterGoalMl } from '../domain/water.ts'
 import { shareOrDownloadBackup } from '../lib/backup-file.ts'
 import { useToday } from '../lib/useToday.ts'
 
@@ -25,6 +26,7 @@ export function Settings({ profile }: { profile: Profile }) {
       <ScreenHeader title="Ajustes" />
       {settings && <AiSection key={`${settings.geminiApiKey}|${settings.geminiModel}`} settings={settings} />}
       <TargetsSection key={targetsKey} profile={profile} />
+      <WaterGoalSection key={`water-${waterGoalMl(profile)}`} profile={profile} />
       <ProfileSection profile={profile} />
       <BackupSection lastBackupAt={settings?.lastBackupAt} />
       <StorageSection />
@@ -214,6 +216,50 @@ function parseTargetValues(v: Record<TargetKey, string>): Targets | null {
   }
   const t = out as Targets
   return t.kcal >= 800 ? t : null
+}
+
+function WaterGoalSection({ profile }: { profile: Profile }) {
+  const current = waterGoalMl(profile)
+  const [value, setValue] = useState(String(current))
+  const [error, setError] = useState<string | null>(null)
+  const parsed = parseDecimal(value)
+  const dirty = parsed === null || Math.round(parsed) !== current
+
+  function onSave() {
+    if (parsed === null || parsed < 500 || parsed > 10_000) {
+      setError('La meta de agua debe estar entre 500 y 10.000 ml.')
+      return
+    }
+    setError(null)
+    void saveProfile({ ...profile, waterGoalMl: Math.round(parsed) })
+  }
+
+  return (
+    <>
+      <div className="pt-3">
+        <RowGroup>
+          <NumberRow
+            label={<MacroLabel color="bg-water" text="Agua" />}
+            value={value}
+            onChange={setValue}
+            suffix="ml"
+            decimals={false}
+          />
+        </RowGroup>
+      </div>
+      {error && <Footnote tone="error">{error}</Footnote>}
+      {!error && profile.waterGoalMl === undefined && !dirty && (
+        <Footnote>Calculada con {WATER_ML_PER_KG} ml por kg de peso. Cámbiala si quieres.</Footnote>
+      )}
+      {dirty && (
+        <div className="px-4 pt-3">
+          <Button className="w-full" onClick={onSave}>
+            Guardar meta de agua
+          </Button>
+        </div>
+      )}
+    </>
+  )
 }
 
 /* ─────────────── Mis datos ─────────────── */
