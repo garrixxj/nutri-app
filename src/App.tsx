@@ -11,6 +11,7 @@ import { EditEntry } from './screens/EditEntry.tsx'
 import { Favorites } from './screens/Favorites.tsx'
 import { History } from './screens/History.tsx'
 import { ManualEntry } from './screens/ManualEntry.tsx'
+import { MascotPreview } from './screens/MascotPreview.tsx'
 import { Progress } from './screens/Progress.tsx'
 import { Settings } from './screens/Settings.tsx'
 import { ProfileFlow } from './screens/ProfileFlow.tsx'
@@ -43,6 +44,8 @@ function registerPath(kind: RegisterKind, { meal, date }: RegisterState): string
 export default function App() {
   // undefined while loading, null when there is no profile yet.
   const profile = useLiveQuery(async () => (await db.profile.get(PROFILE_ID)) ?? null, [])
+  const { path } = useRoute()
+  if (path === '/mascot-preview') return <MascotPreview />
   if (profile === undefined) return null
   if (profile === null) return <ProfileFlow mode="onboarding" onDone={() => navigate('/', { replace: true })} />
   return <Shell profile={profile} />
