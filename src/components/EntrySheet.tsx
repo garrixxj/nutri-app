@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
+import { navigate } from '../app/router.ts'
 import { db } from '../db/db.ts'
 import type { Entry, EntrySource } from '../db/types.ts'
 import { formatTime } from '../domain/dates.ts'
 import { formatInt } from '../domain/format.ts'
 import { MEAL_LABELS } from '../domain/labels.ts'
 import { entryTotals } from '../domain/totals.ts'
-import { IconTrash } from './icons.tsx'
+import { IconEdit, IconTrash } from './icons.tsx'
 import { Sheet } from './Sheet.tsx'
 import { Button } from './ui.tsx'
 
@@ -86,10 +87,23 @@ export function EntrySheet({ entry, onClose }: { entry: Entry | null; onClose: (
             </span>
           </div>
 
-          <Button variant="danger" className="mt-5 w-full" onClick={remove}>
-            <IconTrash size={20} />
-            {confirming ? 'Toca de nuevo para eliminar' : 'Eliminar comida'}
-          </Button>
+          <div className="mt-5 flex flex-col gap-2">
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => {
+                onClose()
+                navigate(`/editar?id=${encodeURIComponent(shown.id)}`)
+              }}
+            >
+              <IconEdit size={20} />
+              Editar
+            </Button>
+            <Button variant="danger" className="w-full" onClick={remove}>
+              <IconTrash size={20} />
+              {confirming ? 'Toca de nuevo para eliminar' : 'Eliminar comida'}
+            </Button>
+          </div>
         </div>
       )}
     </Sheet>

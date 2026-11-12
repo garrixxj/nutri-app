@@ -5,6 +5,7 @@ import { TAB_PATHS, goBack, navigate, useRoute } from './app/router.ts'
 import { TabBar } from './app/TabBar.tsx'
 import { db } from './db/db.ts'
 import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
+import { EditEntry } from './screens/EditEntry.tsx'
 import { ManualEntry } from './screens/ManualEntry.tsx'
 import { Placeholder } from './screens/Placeholder.tsx'
 import { Settings } from './screens/Settings.tsx'
@@ -33,6 +34,9 @@ function Shell({ profile }: { profile: Profile }) {
 
   let screen
   switch (path) {
+    case '/editar':
+      screen = <EditEntry id={params.get('id')} />
+      break
     case '/registrar/manual':
       screen = <ManualEntry params={params} />
       break
