@@ -1,0 +1,403 @@
+/* Koala mascot (DESIGN.md → Mascota). Fixed colors in light and dark; only transform and opacity animate. */
+.koala {
+  display: block;
+  overflow: visible;
+}
+
+.koala * {
+  transform-box: view-box;
+}
+
+/* Paint */
+.koala .ln {
+  stroke: #262c3a;
+  stroke-width: 4.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.koala .ln-t {
+  stroke: #262c3a;
+  stroke-width: 2.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.koala .ln-f {
+  fill: none;
+  stroke: #262c3a;
+  stroke-width: 3.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.koala .ln-b {
+  fill: none;
+  stroke: #262c3a;
+  stroke-width: 5.5;
+  stroke-linecap: round;
+}
+.koala .fur {
+  fill: #9ea4b1;
+}
+.koala .fur-l {
+  fill: #e4e6ec;
+}
+.koala .tank {
+  fill: #2e9a55;
+}
+.koala .ink {
+  fill: #262c3a;
+}
+.koala .white {
+  fill: #ffffff;
+}
+.koala .nose-hi {
+  fill: #4a5367;
+}
+.koala .shine {
+  fill: #ffffff;
+  opacity: 0.55;
+}
+.koala .tongue {
+  fill: #e8737a;
+}
+.koala .cup {
+  fill: #f4f5f8;
+}
+.koala .shake {
+  fill: #c99a6b;
+}
+.koala .straw {
+  fill: none;
+  stroke: #262c3a;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Variants: each part shows only in its states (classes s-<state>). */
+.koala .k-v {
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.koala[data-state='idle'] .s-idle,
+.koala[data-state='cheer'] .s-cheer,
+.koala[data-state='eat'] .s-eat,
+.koala[data-state='celebrate'] .s-celebrate,
+.koala[data-state='sleep'] .s-sleep,
+.koala[data-state='worried'] .s-worried {
+  opacity: 1;
+}
+
+/* Pose: arm angles per state. Positive raises the arm outward (both sides, the right one is mirrored). */
+.koala {
+  --lsh: -6deg;
+  --lel: -108deg;
+  --lhd: -10deg;
+  --rsh: -2deg;
+  --rel: -80deg;
+  --rhd: -10deg;
+}
+.koala[data-state='cheer'] {
+  --lsh: 38deg;
+  --lel: 126deg;
+  --lhd: -16deg;
+  --rsh: 26deg;
+  --rel: -78deg;
+  --rhd: -10deg;
+}
+.koala[data-state='eat'] {
+  --lsh: -2deg;
+  --lel: 184deg;
+  --lhd: 0deg;
+  --rsh: 26deg;
+  --rel: -78deg;
+  --rhd: -10deg;
+}
+.koala[data-state='celebrate'] {
+  --lsh: 100deg;
+  --lel: 84deg;
+  --lhd: 10deg;
+  --rsh: 100deg;
+  --rel: 84deg;
+  --rhd: 10deg;
+}
+.koala[data-state='sleep'] {
+  --lsh: -12deg;
+  --lel: 200deg;
+  --lhd: -6deg;
+  --rsh: 26deg;
+  --rel: -78deg;
+  --rhd: -10deg;
+}
+.koala[data-state='worried'] {
+  --lsh: 142deg;
+  --lel: 70deg;
+  --lhd: 20deg;
+  --rsh: 26deg;
+  --rel: -78deg;
+  --rhd: -10deg;
+}
+
+.koala .k-rig {
+  transform: rotate(var(--r));
+  transition: transform 460ms cubic-bezier(0.34, 1.32, 0.5, 1);
+}
+.koala .k-arm-l .k-sh {
+  --r: var(--lsh);
+}
+.koala .k-arm-l .k-el {
+  --r: var(--lel);
+}
+.koala .k-arm-l .k-hd {
+  --r: var(--lhd);
+}
+.koala .k-arm-r .k-sh {
+  --r: var(--rsh);
+}
+.koala .k-arm-r .k-el {
+  --r: var(--rel);
+}
+.koala .k-arm-r .k-hd {
+  --r: var(--rhd);
+}
+/* Props stay upright whatever the arm angle. */
+.koala .k-arm-l .k-prop {
+  transform: rotate(calc(-1 * (var(--lsh) + var(--lel) + var(--lhd))));
+  transition: transform 460ms cubic-bezier(0.34, 1.32, 0.5, 1), opacity 120ms ease-out;
+}
+.koala .k-arm-r .k-prop {
+  transform: rotate(calc(-1 * (var(--rsh) + var(--rel) + var(--rhd))));
+  transition: transform 460ms cubic-bezier(0.34, 1.32, 0.5, 1), opacity 120ms ease-out;
+}
+
+/* Blink lids rest closed-up (scaleY 0). */
+.koala .k-lid {
+  transform: scaleY(0);
+}
+
+/* ---- Motion ---- */
+
+/* idle: breathes and blinks */
+.koala .k-upper {
+  animation: k-breathe 4s ease-in-out infinite;
+}
+.koala[data-state='idle'] .k-lid,
+.koala[data-state='celebrate'] .k-lid,
+.koala[data-state='worried'] .k-lid {
+  animation: k-blink 6.4s linear infinite;
+}
+
+/* cheer: the thumb pumps twice once the arm is up */
+.koala[data-state='cheer'] .k-arm-l .k-el > .k-m {
+  animation: k-thumb 700ms ease-in-out 380ms 2;
+}
+
+/* eat: sips in small lifts while the shake goes down */
+.koala[data-state='eat'] .k-arm-l .k-sh > .k-m {
+  animation: k-sip 1.6s ease-in-out 400ms infinite;
+}
+.koala[data-state='eat'] .k-shake {
+  animation: k-drain 6s ease-in 400ms forwards;
+}
+.koala[data-state='eat'] .k-head {
+  animation: k-lean 1.6s ease-in-out 400ms infinite;
+}
+
+/* celebrate: one hop, three flexes, sparkles that twinkle */
+.koala[data-state='celebrate'] .k-all {
+  animation: k-hop 520ms cubic-bezier(0.3, 0.7, 0.4, 1) 1;
+}
+.koala[data-state='celebrate'] .k-el > .k-m {
+  animation: k-flex 420ms ease-in-out 420ms 6 alternate;
+}
+.koala .k-spark {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.koala[data-state='celebrate'] .k-spark {
+  animation: k-twinkle 1.4s ease-in-out infinite;
+}
+
+/* sleep: slow breathing, the head drops and recovers, a yawn, Zzz floating up */
+.koala[data-state='sleep'] .k-upper {
+  animation-duration: 5.5s;
+}
+.koala[data-state='sleep'] .k-head {
+  animation: k-nod 5.5s ease-in-out infinite;
+}
+.koala[data-state='sleep'] .k-yawn {
+  animation: k-yawn 5.5s ease-in-out infinite;
+}
+.koala .k-z {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.koala[data-state='sleep'] .k-z {
+  animation: k-float 2.1s ease-out infinite;
+}
+
+/* worried: scratches the head and sways a little */
+.koala[data-state='worried'] .k-arm-l .k-hd > .k-m {
+  animation: k-scratch 360ms ease-in-out infinite alternate;
+}
+.koala[data-state='worried'] .k-upper {
+  animation: k-sway 3.2s ease-in-out infinite;
+}
+
+@keyframes k-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-1.5px) scaleY(1.008);
+  }
+}
+@keyframes k-blink {
+  0%,
+  44%,
+  48%,
+  88%,
+  91.5%,
+  95%,
+  100% {
+    transform: scaleY(0);
+  }
+  46%,
+  89.5%,
+  93% {
+    transform: scaleY(1);
+  }
+}
+@keyframes k-thumb {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  45% {
+    transform: rotate(-12deg);
+  }
+}
+@keyframes k-sip {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-5deg);
+  }
+}
+@keyframes k-drain {
+  from {
+    transform: scaleY(1);
+  }
+  to {
+    transform: scaleY(0.35);
+  }
+}
+@keyframes k-lean {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-2.5deg);
+  }
+}
+@keyframes k-hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  18% {
+    transform: translateY(0) scale(1.04, 0.95);
+  }
+  50% {
+    transform: translateY(-10px) scale(0.98, 1.03);
+  }
+  82% {
+    transform: translateY(0) scale(1.03, 0.97);
+  }
+}
+@keyframes k-flex {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-9deg);
+  }
+}
+@keyframes k-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.55) rotate(20deg);
+    opacity: 0.5;
+  }
+}
+@keyframes k-nod {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  45%,
+  60% {
+    transform: rotate(5deg) translateY(2px);
+  }
+}
+@keyframes k-yawn {
+  0%,
+  100% {
+    transform: scale(0.6, 0.55);
+  }
+  35%,
+  60% {
+    transform: scale(1, 1);
+  }
+}
+@keyframes k-float {
+  0% {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-6px, -14px) scale(1);
+    opacity: 0;
+  }
+}
+@keyframes k-scratch {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(8deg);
+  }
+}
+@keyframes k-sway {
+  0%,
+  100% {
+    transform: rotate(-1.5deg);
+  }
+  50% {
+    transform: rotate(1.5deg);
+  }
+}
+
+/* Static poses: each state keeps its drawing, nothing loops or travels. */
+.koala.k-still *,
+.koala.k-still {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .koala *,
+  .koala {
+    animation: none !important;
+    transition: none !important;
+  }
+}
