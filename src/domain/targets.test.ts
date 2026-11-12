@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bmr, calculateTargets, macrosForKcal, type BodyData } from './targets.ts'
+import { adjustKcal, bmr, calculateTargets, macrosForKcal, type BodyData } from './targets.ts'
 
 const male: BodyData = { sex: 'male', age: 30, heightCm: 175, weightKg: 75, activityLevel: 'moderate', goal: 'maintain' }
 
@@ -42,5 +42,19 @@ describe('calculateTargets', () => {
 describe('macrosForKcal', () => {
   it('never returns negative carbs when protein and fat exceed the target', () => {
     expect(macrosForKcal(800, 120).carbs).toBe(0)
+  })
+})
+
+describe('adjustKcal', () => {
+  it('adds kcal, keeps protein and re-splits fat and carbs', () => {
+    const next = adjustKcal({ kcal: 2900, protein: 160, carbs: 393, fat: 81 }, 250)
+    expect(next.kcal).toBe(3150)
+    expect(next.protein).toBe(160)
+    expect(next.fat).toBe(Math.round((3150 * 0.25) / 9))
+    expect(next.carbs).toBe(Math.round((3150 - 160 * 4 - next.fat * 9) / 4))
+  })
+
+  it('never drops below 800 kcal', () => {
+    expect(adjustKcal({ kcal: 900, protein: 100, carbs: 50, fat: 25 }, -250).kcal).toBe(800)
   })
 })

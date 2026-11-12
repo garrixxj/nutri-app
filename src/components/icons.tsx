@@ -147,3 +147,27 @@ export function IconUndo(p: IconProps) {
     </Svg>
   )
 }
+
+export function IconCheck(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </Svg>
+  )
+}
+
+export function IconArrowUp(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M12 19V5M6 11l6-6 6 6" />
+    </Svg>
+  )
+}
+
+export function IconArrowDown(p: IconProps) {
+  return (
+    <Svg {...p}>
+      <path d="M12 5v14M6 13l6 6 6-6" />
+    </Svg>
+  )
+}

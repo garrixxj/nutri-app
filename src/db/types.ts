@@ -105,4 +105,6 @@ export interface Settings {
   aiUsageDay?: string
   /** Successful AI analyses on `aiUsageDay`. */
   aiUsageCount?: number
+  /** When the kcal goal was last changed from the pace suggestion (epoch ms). */
+  paceAdjustedAt?: number
 }

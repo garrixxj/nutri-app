@@ -53,3 +53,15 @@ export function macrosForKcal(kcal: number, weightKg: number): Targets {
 export function calculateTargets(data: BodyData): Targets {
   return macrosForKcal(goalKcal(data), data.weightKg)
 }
+
+/**
+ * Shifts the daily kcal by `deltaKcal`, keeping protein as it is (it depends on body
+ * weight, not on energy) and re-splitting the rest: fat at its usual share, carbs fill in.
+ */
+export function adjustKcal(targets: Targets, deltaKcal: number): Targets {
+  const kcal = Math.max(800, Math.round(targets.kcal + deltaKcal))
+  const protein = targets.protein
+  const fat = Math.round((kcal * FAT_SHARE) / 9)
+  const carbs = Math.max(0, Math.round((kcal - protein * 4 - fat * 9) / 4))
+  return { kcal, protein, carbs, fat }
+}
