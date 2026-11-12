@@ -1,12 +1,14 @@
+import { useLiveQuery } from 'dexie-react-hooks'
 import { useEffect, useState } from 'react'
 import { navigate } from '../app/router.ts'
 import { db } from '../db/db.ts'
+import { deleteFavorite, findFavorite, saveFavoriteFromEntry } from '../db/favorites-store.ts'
 import type { Entry, EntrySource } from '../db/types.ts'
 import { formatTime } from '../domain/dates.ts'
 import { formatInt } from '../domain/format.ts'
 import { MEAL_LABELS } from '../domain/labels.ts'
 import { entryTotals } from '../domain/totals.ts'
-import { IconEdit, IconTrash } from './icons.tsx'
+import { IconEdit, IconStar, IconTrash } from './icons.tsx'
 import { Sheet } from './Sheet.tsx'
 import { Button, MacroDot } from './ui.tsx'
 
@@ -41,6 +43,14 @@ export function EntrySheet({ entry, onClose }: { entry: Entry | null; onClose: (
   }
 
   const totals = shown ? entryTotals(shown) : null
+  const favorites = useLiveQuery(() => db.favorites.toArray(), [])
+  const favorite = shown && favorites ? findFavorite(favorites, shown.items) : undefined
+
+  async function toggleFavorite() {
+    if (!shown || !favorites) return
+    if (favorite) await deleteFavorite(favorite.id)
+    else await saveFavoriteFromEntry(shown)
+  }
 
   return (
     <Sheet open={entry !== null} onClose={onClose} title={shown ? MEAL_LABELS[shown.meal] : 'Comida'}>
@@ -88,6 +98,16 @@ export function EntrySheet({ entry, onClose }: { entry: Entry | null; onClose: (
           </div>
 
           <div className="mt-5 flex flex-col gap-2">
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={toggleFavorite}
+              disabled={favorites === undefined}
+              aria-pressed={favorite !== undefined}
+            >
+              <IconStar size={20} fill={favorite ? 'currentColor' : 'none'} className={favorite ? 'text-warning' : ''} />
+              {favorite ? 'En favoritos' : 'Guardar en favoritos'}
+            </Button>
             <Button
               variant="secondary"
               className="w-full"
