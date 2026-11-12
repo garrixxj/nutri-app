@@ -3,7 +3,7 @@ import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } 
 import { navigate } from '../app/router.ts'
 import { usageToday } from '../db/ai-usage.ts'
 import { db, getSettings, saveProfile, updateSettings } from '../db/db.ts'
-import { BackupError, parseBackup, type BackupFile } from '../db/backup.ts'
+import { BackupError, parseBackup, type ParsedBackup } from '../db/backup.ts'
 import { buildBackup, markBackupExported, restoreBackup } from '../db/backup-store.ts'
 import { DEFAULT_GEMINI_MODEL, type Profile, type Settings as SettingsData, type Targets } from '../db/types.ts'
 import { MacroLabel, NumberRow, RowGroup } from '../components/fields.tsx'
@@ -254,7 +254,7 @@ function BackupSection({ lastBackupAt }: { lastBackupAt: number | undefined }) {
   const entryCount = useLiveQuery(() => db.entries.count(), []) ?? 0
   const fileRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
-  const [pending, setPending] = useState<BackupFile | null>(null)
+  const [pending, setPending] = useState<ParsedBackup | null>(null)
   const [message, setMessage] = useState<{ text: string; tone: 'ok' | 'error' } | null>(null)
 
   async function onExport() {
@@ -327,8 +327,9 @@ function BackupSection({ lastBackupAt }: { lastBackupAt: number | undefined }) {
           <p className="mt-1 text-secondary text-text-2">
             Se borran tus {formatInt(entryCount)} comidas actuales y quedan las {formatInt(pending.entries.length)} del respaldo
             {pending.exportedAt ? ` (${formatDateTime(pending.exportedAt)})` : ''}.
-            {!pending.profile && ' El respaldo no trae tus datos personales, así que tendrás que completarlos de nuevo.'} Tu API key
-            no cambia.
+            {!pending.profile && ' El respaldo no trae tus datos personales, así que tendrás que completarlos de nuevo.'}
+            {pending.fromVersion < 2 && ' Es un respaldo antiguo: no trae favoritos, agua ni peso, así que esos quedarán vacíos.'} Tu
+            API key no cambia.
           </p>
           <div className="mt-4 flex gap-2">
             <Button variant="danger" className="flex-1" onClick={confirmRestore} disabled={busy}>
