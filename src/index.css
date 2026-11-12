@@ -126,6 +126,11 @@
   padding-top: env(safe-area-inset-top);
 }
 
+/* Floating tab bar: sits just above the home indicator, never flush with the edge. */
+@utility tabbar-offset {
+  padding-bottom: max(calc(env(safe-area-inset-bottom) - 8px), 12px);
+}
+
 @utility safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }

@@ -33,8 +33,8 @@ Los colores de macros son fijos en toda la app (anillo, barras, chips, gráficos
 - Áreas táctiles de mínimo 44x44. Botón principal de 52 de alto.
 
 ## Navegación
-Barra inferior fija con safe area: Hoy · Historial · [ + Registrar ] (botón central destacado) · Progreso · Ajustes.
-"Registrar" abre una hoja inferior con: Foto, Describir, Favoritos y (fase 3) Código de barras.
+Barra inferior flotante en píldora, separada de los bordes y sobre el indicador de inicio: Hoy · Historial · [ cámara ] · Progreso · Ajustes.
+El botón central es un círculo casi negro que sobresale de la barra; abre la hoja "Registrar" con: Foto, Describir, Manual, Favoritos y (fase 3) Código de barras.
 
 ## Pantallas clave
 - Hoy: anillo de kcal restantes arriba, tres barras de macros debajo, y tarjetas por comida (desayuno, almuerzo, once, cena, snack) con su total y sus ítems.

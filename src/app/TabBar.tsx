@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import { IconCalendar, IconChart, IconGear, IconPlus, IconToday } from '../components/icons.tsx'
+import { IconCalendar, IconCamera, IconChart, IconGear, IconToday } from '../components/icons.tsx'
 import { navigate } from './router.ts'
 
 interface Tab {
@@ -26,7 +26,7 @@ export function TabBar({ current, onRegister }: { current: string; onRegister: (
         type="button"
         onClick={() => navigate(path, { replace: true })}
         aria-current={active ? 'page' : undefined}
-        className={`flex min-h-11 flex-col items-center justify-center gap-0.5 pt-1.5 text-label leading-4 font-medium transition-colors duration-150 ease-out ${active ? 'text-accent' : 'text-text-2'}`}
+        className={`flex min-h-12 flex-col items-center justify-center gap-0.5 text-label font-semibold transition-colors duration-150 ease-out ${active ? 'text-accent' : 'text-text-2'}`}
       >
         <Icon size={24} />
         {label}
@@ -35,22 +35,17 @@ export function TabBar({ current, onRegister }: { current: string; onRegister: (
   }
 
   return (
-    <nav
-      aria-label="Principal"
-      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-separator bg-[color-mix(in_srgb,var(--card)_86%,transparent)] backdrop-blur-xl"
-    >
-      <div className="mx-auto grid h-[58px] max-w-md grid-cols-5 items-start">
+    <nav aria-label="Principal" className="tabbar-offset pointer-events-none fixed inset-x-0 bottom-0 z-40 px-4">
+      <div className="pointer-events-auto mx-auto grid h-16 max-w-md grid-cols-5 items-center rounded-full bg-[color-mix(in_srgb,var(--card)_90%,transparent)] px-1 shadow-[0_8px_30px_rgb(28_29_33/0.10)] ring-1 ring-separator backdrop-blur-xl">
         {LEFT.map(renderTab)}
         <div className="flex justify-center">
           <button
             type="button"
             onClick={onRegister}
-            className="-mt-4 flex flex-col items-center gap-0.5 text-label leading-4 font-semibold text-accent"
+            aria-label="Registrar comida"
+            className="-mt-7 flex size-15 items-center justify-center rounded-full bg-ink text-on-ink shadow-[0_6px_18px_rgb(28_29_33/0.28)] ring-4 ring-bg transition-transform duration-150 ease-out active:scale-95"
           >
-            <span className="flex size-13 items-center justify-center rounded-full bg-accent text-white shadow-[0_4px_14px_color-mix(in_srgb,var(--accent)_40%,transparent)] transition-transform duration-150 ease-out active:scale-95">
-              <IconPlus size={28} strokeWidth={2.4} />
-            </span>
-            Registrar
+            <IconCamera size={26} strokeWidth={2.1} />
           </button>
         </div>
         {RIGHT.map(renderTab)}

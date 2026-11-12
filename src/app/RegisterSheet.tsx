@@ -46,7 +46,7 @@ export function RegisterSheet({
                 className="flex min-h-16 w-full items-center gap-3 rounded-inner bg-fill px-3 py-2.5 text-left transition-transform duration-150 ease-out active:scale-[0.98] disabled:active:scale-100"
               >
                 <span
-                  className={`flex size-11 shrink-0 items-center justify-center rounded-full ${badge ? 'bg-text-2/12 text-text-2' : 'bg-accent/14 text-accent'}`}
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-full ${badge ? 'bg-text-2/12 text-text-2' : 'bg-card text-text shadow-card'}`}
                 >
                   <Icon size={24} />
                 </span>
