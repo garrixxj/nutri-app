@@ -5,6 +5,7 @@ import { TAB_PATHS, navigate, useRoute } from './app/router.ts'
 import { TabBar } from './app/TabBar.tsx'
 import { db } from './db/db.ts'
 import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
+import { ManualEntry } from './screens/ManualEntry.tsx'
 import { Placeholder } from './screens/Placeholder.tsx'
 import { ProfileFlow } from './screens/ProfileFlow.tsx'
 import { Today } from './screens/Today.tsx'
@@ -22,7 +23,7 @@ export default function App() {
 }
 
 function Shell({ profile }: { profile: Profile }) {
-  const { path } = useRoute()
+  const { path, params } = useRoute()
   const [register, setRegister] = useState<{ open: boolean; meal?: Meal }>({ open: false })
   const openRegister = useCallback((meal?: Meal) => setRegister({ open: true, meal }), [])
   const closeRegister = useCallback(() => setRegister((r) => ({ ...r, open: false })), [])
@@ -31,6 +32,9 @@ function Shell({ profile }: { profile: Profile }) {
 
   let screen
   switch (path) {
+    case '/registrar/manual':
+      screen = <ManualEntry params={params} />
+      break
     case '/historial':
       screen = <Placeholder title="Historial" message="Aquí vas a ver lo que comiste cada día." />
       break

@@ -3,7 +3,7 @@ import { saveProfile } from '../db/db.ts'
 import { BackupError, parseBackup } from '../db/backup.ts'
 import { restoreBackup } from '../db/backup-store.ts'
 import type { ActivityLevel, Goal, Profile, Sex, Targets } from '../db/types.ts'
-import { ChoiceRow, NumberRow, RowGroup } from '../components/fields.tsx'
+import { ChoiceRow, MacroLabel, NumberRow, RowGroup } from '../components/fields.tsx'
 import { BottomBar, Button, Segmented, SectionTitle } from '../components/ui.tsx'
 import { formatInt, parseDecimal, toInputString } from '../domain/format.ts'
 import { ACTIVITY_OPTIONS, GOAL_OPTIONS, SEX_OPTIONS } from '../domain/labels.ts'
@@ -279,15 +279,6 @@ function FlowHeader({ step, title, left }: { step: 1 | 2; title: string; left?: 
       </div>
       <h1 className="pt-2 pb-2 text-title font-bold tracking-tight">{title}</h1>
     </header>
-  )
-}
-
-function MacroLabel({ color, text }: { color: string; text: string }) {
-  return (
-    <span className="flex items-center gap-2">
-      <span className={`size-2.5 rounded-full ${color}`} aria-hidden="true" />
-      {text}
-    </span>
   )
 }
 
