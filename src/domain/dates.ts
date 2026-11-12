@@ -28,3 +28,23 @@ export function formatLongDate(iso: string): string {
 export function formatTime(ms: number): string {
   return time.format(new Date(ms))
 }
+
+/** Whole calendar days from `fromIso` to `toIso` (local dates). */
+export function daysBetween(fromIso: string, toIso: string): number {
+  return Math.round((fromISODate(toIso).getTime() - fromISODate(fromIso).getTime()) / 86_400_000)
+}
+
+/** "hoy", "ayer", "hace 3 días" */
+export function relativeDay(iso: string, todayIso: string): string {
+  const days = daysBetween(iso, todayIso)
+  if (days <= 0) return 'hoy'
+  if (days === 1) return 'ayer'
+  return `hace ${days} días`
+}
+
+const dateTime = new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false })
+
+/** Epoch ms or ISO timestamp → "12 nov, 14:03" */
+export function formatDateTime(value: number | string): string {
+  return dateTime.format(new Date(value))
+}

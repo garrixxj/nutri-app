@@ -1,12 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useState } from 'react'
 import { RegisterSheet, type RegisterKind } from './app/RegisterSheet.tsx'
-import { TAB_PATHS, navigate, useRoute } from './app/router.ts'
+import { TAB_PATHS, goBack, navigate, useRoute } from './app/router.ts'
 import { TabBar } from './app/TabBar.tsx'
 import { db } from './db/db.ts'
 import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
 import { ManualEntry } from './screens/ManualEntry.tsx'
 import { Placeholder } from './screens/Placeholder.tsx'
+import { Settings } from './screens/Settings.tsx'
 import { ProfileFlow } from './screens/ProfileFlow.tsx'
 import { Today } from './screens/Today.tsx'
 
@@ -42,7 +43,10 @@ function Shell({ profile }: { profile: Profile }) {
       screen = <Placeholder title="Progreso" message="Peso, gráfico y resumen semanal llegan en la próxima fase." />
       break
     case '/ajustes':
-      screen = <Placeholder title="Ajustes" message="API key, metas y respaldo." />
+      screen = <Settings profile={profile} />
+      break
+    case '/ajustes/perfil':
+      screen = <ProfileFlow mode="edit" profile={profile} onDone={() => goBack('/ajustes')} />
       break
     default:
       screen = <Today profile={profile} onRegister={openRegister} />

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Entry } from '../db/types.ts'
-import { addDays, formatLongDate, toISODate } from './dates.ts'
+import { addDays, formatLongDate, relativeDay, toISODate } from './dates.ts'
 import { isMeal, mealForHour } from './meals.ts'
 import { dayTotals, groupByMeal, kcalFromMacros } from './totals.ts'
 
@@ -58,5 +58,13 @@ describe('dates', () => {
 
   it('formats a long Spanish date', () => {
     expect(formatLongDate('2026-11-12')).toBe('jueves 12 de noviembre')
+  })
+})
+
+describe('relative days', () => {
+  it('counts calendar days, including across DST changes', () => {
+    expect(relativeDay('2026-11-12', '2026-11-12')).toBe('hoy')
+    expect(relativeDay('2026-11-11', '2026-11-12')).toBe('ayer')
+    expect(relativeDay('2026-08-30', '2026-09-10')).toBe('hace 11 días')
   })
 })

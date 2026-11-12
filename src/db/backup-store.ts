@@ -1,12 +1,14 @@
 import { db, getProfile, updateSettings } from './db.ts'
 import { serializeBackup, type BackupFile } from './backup.ts'
 
-/** Reads everything that belongs in a backup and records the export time. */
-export async function exportBackup(): Promise<BackupFile> {
+/** Reads everything that belongs in a backup. Settings (API key) never go in. */
+export async function buildBackup(): Promise<BackupFile> {
   const [profile, entries] = await Promise.all([getProfile(), db.entries.orderBy('createdAt').toArray()])
-  const backup = serializeBackup(profile ?? null, entries)
-  await updateSettings({ lastBackupAt: Date.now() })
-  return backup
+  return serializeBackup(profile ?? null, entries)
+}
+
+export function markBackupExported(): Promise<void> {
+  return updateSettings({ lastBackupAt: Date.now() })
 }
 
 /**
