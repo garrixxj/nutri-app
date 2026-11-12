@@ -62,3 +62,12 @@ Transiciones de 150 a 250 ms con ease-out. El anillo se anima al cambiar el valo
 - Tocar o arrastrar muestra una línea vertical y un globo con el valor (primero el número, después la etiqueta). Las flechas del teclado hacen lo mismo. Cada gráfico lleva una tabla oculta para VoiceOver.
 - Peso: pesajes del día como puntos tenues (`text-2` al 35 %) y el promedio móvil de 7 días como la línea. La línea empieza cuando ya promedia al menos 2 días.
 
+
+## Mascota
+Koala musculoso original con cintillo y polera verdes, actitud de entrenador. Referencias en `design/mascot/` (solo para dibujar; no se publican: Vite solo empaqueta `public/` y lo importado).
+- SVG propio en `src/components/mascot/`, con partes en grupos: orejas, cuerpo, polera, cabeza, cintillo, ojos, párpados, cejas, nariz, boca y brazos. Cada brazo es un rig (hombro → codo → mano) y las poses son ángulos, así que cambiar de estado gira los brazos en vez de saltar.
+- Colores fijos en claro y oscuro: contorno #262C3A, pelaje #9EA4B1, pelaje claro #E4E6EC, polera y cintillo #2E9A55 (el `chart`). Trazo de 4,5 con uniones redondeadas.
+- Estados: idle (respira y parpadea), saludo (pulgar arriba), comiendo (shake), celebración (doble bíceps), sueño (bostezo y Zzz), preocupado (se rasca la cabeza).
+- Cuándo: comiendo unos segundos tras guardar una comida; preocupado si pasa del 115 % de la meta de kcal y ya son las 18:00 o hay cena registrada; celebración al cumplir la meta de kcal o de proteína; sueño sin registros hoy; si no, idle. El saludo es una reacción al tocarlo o al abrir Hoy.
+- Movimiento: solo `transform` y `opacity`. Con `prefers-reduced-motion` cada estado es su pose fija, sin ciclos.
+- En Hoy asoma detrás del borde superior de la tarjeta de calorías, sobre el anillo, con un globo de texto (tono de entrenador, en chileno, sin retar) y la racha de días seguidos. Vista previa de estados y ubicaciones en `#/mascot-preview`.
