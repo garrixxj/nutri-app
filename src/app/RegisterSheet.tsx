@@ -15,13 +15,11 @@ const OPTIONS: Option[] = [
   { kind: 'photo', title: 'Foto', subtitle: 'Saca una foto de tu plato', Icon: IconCamera },
   { kind: 'text', title: 'Describir', subtitle: 'Escribe lo que comiste', Icon: IconText },
   { kind: 'manual', title: 'Manual', subtitle: 'Ingresa los valores tú mismo', Icon: IconEdit },
-  { kind: 'favorite', title: 'Favoritos', subtitle: 'Tus comidas guardadas', Icon: IconStar },
+  { kind: 'favorite', title: 'Favoritos', subtitle: 'Guardadas y frecuentes, sin usar IA', Icon: IconStar },
 ]
 
 /** Options not wired up yet in this build. */
-const UNAVAILABLE: Partial<Record<RegisterKind, string>> = {
-  favorite: 'Próximamente',
-}
+const UNAVAILABLE: Partial<Record<RegisterKind, string>> = {}
 
 export function RegisterSheet({
   open,

@@ -8,6 +8,7 @@ import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
 import { setPendingPhoto } from './lib/photo-handoff.ts'
 import { Analyze } from './screens/Analyze.tsx'
 import { EditEntry } from './screens/EditEntry.tsx'
+import { Favorites } from './screens/Favorites.tsx'
 import { History } from './screens/History.tsx'
 import { ManualEntry } from './screens/ManualEntry.tsx'
 import { Placeholder } from './screens/Placeholder.tsx'
@@ -19,6 +20,7 @@ const REGISTER_PATHS: Partial<Record<RegisterKind, string>> = {
   photo: '/registrar/foto',
   text: '/registrar/describir',
   manual: '/registrar/manual',
+  favorite: '/registrar/favoritos',
 }
 
 interface RegisterState {
@@ -74,6 +76,9 @@ function Shell({ profile }: { profile: Profile }) {
       break
     case '/registrar/describir':
       screen = <Analyze key="text" mode="text" params={params} />
+      break
+    case '/registrar/favoritos':
+      screen = <Favorites params={params} />
       break
     case '/registrar/manual':
       screen = <ManualEntry params={params} />
