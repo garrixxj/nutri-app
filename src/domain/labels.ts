@@ -26,3 +26,11 @@ export const MEAL_LABELS: Record<Meal, string> = {
   cena: 'Cena',
   snack: 'Snack',
 }
+
+export const MEAL_EMOJI: Record<Meal, string> = {
+  desayuno: '☕',
+  almuerzo: '🍲',
+  once: '🥖',
+  cena: '🍽️',
+  snack: '🍎',
+}

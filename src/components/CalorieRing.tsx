@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react'
 import { formatInt } from '../domain/format.ts'
 
-const SIZE = 184
-const STROKE = 14
+const SIZE = 120
+const STROKE = 12
 const RADIUS = (SIZE - STROKE) / 2
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 
 /**
- * Remaining-kcal ring. The arc fills as you eat; past the goal it turns red.
- * A hidden <progress> carries the real values for VoiceOver.
+ * Consumed-kcal ring with the percentage in the middle. The arc fills as you eat;
+ * past the goal it turns red. A hidden <progress> carries the real values for VoiceOver.
  */
 export function CalorieRing({ consumed, goal }: { consumed: number; goal: number }) {
-  const remaining = goal - consumed
-  const over = remaining < 0
+  const over = consumed > goal
   const target = goal > 0 ? Math.min(consumed / goal, 1) : 0
+  const percent = goal > 0 ? Math.round((consumed / goal) * 100) : 0
 
   // Start empty and sweep to the value after mount, so the ring animates in.
   const [progress, setProgress] = useState(0)
@@ -23,7 +23,7 @@ export function CalorieRing({ consumed, goal }: { consumed: number; goal: number
   }, [target])
 
   return (
-    <div className="relative size-[min(168px,44vw)] shrink-0">
+    <div className="relative size-[min(116px,30vw)] shrink-0">
       <progress
         className="sr-only"
         value={Math.round(consumed)}
@@ -45,10 +45,8 @@ export function CalorieRing({ consumed, goal }: { consumed: number; goal: number
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center" aria-hidden="true">
-        <span className={`text-display font-bold tracking-tight tabular ${over ? 'text-danger' : ''}`}>
-          {formatInt(Math.abs(remaining))}
-        </span>
-        <span className="text-label font-medium text-text-2">{over ? 'kcal de más' : 'kcal restantes'}</span>
+        <span className={`text-title font-bold tabular ${over ? 'text-danger' : ''}`}>{percent}%</span>
+        <span className="text-label font-medium text-text-2">de la meta</span>
       </div>
     </div>
   )

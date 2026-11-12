@@ -5,8 +5,8 @@ export function ScreenHeader({ title, eyebrow, right }: { title: string; eyebrow
     <header className="safe-top px-4">
       <div className="flex min-h-14 items-end justify-between gap-3 pt-3 pb-3">
         <div className="min-w-0">
-          {eyebrow && <p className="text-label font-medium text-text-2 first-letter:uppercase">{eyebrow}</p>}
-          <h1 className="text-title font-bold tracking-tight">{title}</h1>
+          {eyebrow && <p className="text-label font-semibold tracking-wide text-text-2 uppercase">{eyebrow}</p>}
+          <h1 className="text-[28px] leading-9 font-bold tracking-tight">{title}</h1>
         </div>
         {right}
       </div>
@@ -16,7 +16,7 @@ export function ScreenHeader({ title, eyebrow, right }: { title: string; eyebrow
 
 /** Content area of a tab screen; leaves room for the fixed tab bar. */
 export function TabScreen({ children }: { children: ReactNode }) {
-  return <main className="mx-auto max-w-md pb-[calc(env(safe-area-inset-bottom)+96px)]">{children}</main>
+  return <main className="mx-auto max-w-md pb-[calc(env(safe-area-inset-bottom)+112px)]">{children}</main>
 }
 
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {

@@ -37,7 +37,7 @@ Barra inferior flotante en píldora, separada de los bordes y sobre el indicador
 El botón central es un círculo casi negro que sobresale de la barra; abre la hoja "Registrar" con: Foto, Describir, Manual, Favoritos y (fase 3) Código de barras.
 
 ## Pantallas clave
-- Hoy: anillo de kcal restantes arriba, tres barras de macros debajo, y tarjetas por comida (desayuno, almuerzo, once, cena, snack) con su total y sus ítems.
+- Hoy: tarjeta grande con "Te quedan X kcal" a la izquierda y el anillo con el % de la meta a la derecha; debajo, un panel gris con las tres barras de macros. Luego "Comidas" con un chip "N de 5 registradas" y una grilla de 2 columnas (emoji o foto, nombre de la comida, ítems y kcal, botón +). Snack ocupa el ancho completo. Tocar una comida con un registro abre su detalle; con varios, abre una hoja con la lista.
 - Revisión de IA: foto en miniatura, lista de ítems con gramos editables y nivel de confianza, totales que se actualizan al instante, botón "Guardar" fijo abajo.
 - Estados: vacío (invita a registrar la primera comida), cargando (skeleton y texto "Analizando tu plato…") y error (mensaje claro más registro manual).
 

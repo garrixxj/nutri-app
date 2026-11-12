@@ -2,24 +2,30 @@ import type { Macros } from '../db/types.ts'
 import { formatInt } from '../domain/format.ts'
 
 const MACROS = [
-  { key: 'protein', label: 'Proteína', fill: 'bg-protein', track: 'bg-protein/15' },
-  { key: 'carbs', label: 'Carbos', fill: 'bg-carbs', track: 'bg-carbs/15' },
-  { key: 'fat', label: 'Grasa', fill: 'bg-fat', track: 'bg-fat/15' },
+  { key: 'protein', label: 'Proteína', fill: 'bg-protein' },
+  { key: 'carbs', label: 'Carbos', fill: 'bg-carbs' },
+  { key: 'fat', label: 'Grasa', fill: 'bg-fat' },
 ] as const
 
-/** Three macro progress bars. The fill animates with transform (scaleX) only. */
+/**
+ * Three macro progress bars, meant to sit on a `bg-fill` panel (the track is card-colored).
+ * The fill animates with transform (scaleX) only.
+ */
 export function MacroBars({ consumed, targets }: { consumed: Macros; targets: Macros }) {
   return (
-    <div className="grid grid-cols-3 gap-4">
-      {MACROS.map(({ key, label, fill, track }) => {
+    <div className="grid grid-cols-3 gap-3">
+      {MACROS.map(({ key, label, fill }) => {
         const value = consumed[key]
         const goal = targets[key]
         const ratio = goal > 0 ? Math.min(value / goal, 1) : 0
         return (
           <div key={key} className="min-w-0">
-            <p className="text-label font-medium text-text-2">{label}</p>
+            <p className="flex items-baseline justify-between gap-1">
+              <span className="truncate text-label font-medium text-text-2">{label}</span>
+              <span className="text-secondary font-bold tabular">{formatInt(value)}g</span>
+            </p>
             <div
-              className={`mt-1.5 h-1.5 overflow-hidden rounded-full ${track}`}
+              className="mt-2 h-2 overflow-hidden rounded-full bg-card"
               role="progressbar"
               aria-label={label}
               aria-valuemin={0}
@@ -31,10 +37,7 @@ export function MacroBars({ consumed, targets }: { consumed: Macros; targets: Ma
                 style={{ transform: `scaleX(${ratio})` }}
               />
             </div>
-            <p className="mt-1.5 text-secondary tabular">
-              <span className="font-semibold">{formatInt(value)}</span>
-              <span className="text-text-2"> / {formatInt(goal)} g</span>
-            </p>
+            <p className="mt-1.5 text-label text-text-2 tabular">de {formatInt(goal)} g</p>
           </div>
         )
       })}
