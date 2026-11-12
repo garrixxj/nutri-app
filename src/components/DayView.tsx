@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { db } from '../db/db.ts'
 import { MEALS, type Entry, type Meal, type Profile } from '../db/types.ts'
 import { formatInt } from '../domain/format.ts'
@@ -17,11 +17,14 @@ export function DayView({
   profile,
   isToday,
   onRegister,
+  coach,
 }: {
   date: string
   profile: Profile
   isToday: boolean
   onRegister: (meal?: Meal) => void
+  /** Shown right above the calorie card (Hoy's koala), which stays on top of it. */
+  coach?: ReactNode
 }) {
   const entries = useLiveQuery(() => db.entries.where('date').equals(date).sortBy('createdAt'), [date])
   const [openEntry, setOpenEntry] = useState<Entry | null>(null)
@@ -46,7 +49,8 @@ export function DayView({
 
   return (
     <div className="flex flex-col gap-3 px-4">
-      <Card className="p-5">
+      {coach}
+      <Card className="relative z-[1] p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-secondary font-medium text-text-2">{over ? 'Te pasaste por' : 'Te quedan'}</p>
