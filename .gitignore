@@ -3,3 +3,10 @@ node_modules/
 dist/
 .env*
 .DS_Store
+dist-ssr/
+*.local
+*.log
+dev-dist/
+.vscode/*
+!.vscode/extensions.json
+.idea/
