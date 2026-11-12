@@ -68,7 +68,7 @@ export function Segmented<T extends string>({
   label,
 }: {
   options: readonly SegmentedOption<T>[]
-  value: T
+  value: T | null
   onChange: (v: T) => void
   label: string
 }) {
