@@ -47,7 +47,7 @@ export function MealCard({
         )}
         <span className="block w-full min-w-0">
           <span className="block text-label font-semibold tracking-wide text-text-2 uppercase">{label}</span>
-          <span className={`mt-0.5 line-clamp-2 block text-body font-semibold ${empty ? 'text-text-2' : ''}`}>
+          <span className={`mt-0.5 line-clamp-2 text-body font-semibold ${empty ? 'text-text-2' : ''}`}>
             {empty ? 'Sin registrar' : itemNames(entries)}
           </span>
           {!empty && <span className="mt-0.5 block text-secondary text-text-2 tabular">{formatInt(total.kcal)} kcal</span>}

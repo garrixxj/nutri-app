@@ -71,7 +71,7 @@ export function Sheet({ open, onClose, title, showTitle = false, children }: She
         aria-modal="true"
         aria-label={title}
         tabIndex={-1}
-        className={`absolute inset-x-0 bottom-0 mx-auto max-h-[90dvh] max-w-md overflow-y-auto rounded-t-card bg-card px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] outline-none transition-transform duration-250 ease-out ${shown ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`absolute inset-x-0 bottom-0 mx-auto max-h-[90dvh] max-w-md overflow-y-auto overscroll-contain rounded-t-card bg-card px-4 pb-[calc(env(safe-area-inset-bottom)+16px)] outline-none transition-transform duration-250 ease-out ${shown ? 'translate-y-0' : 'translate-y-full'}`}
       >
         <div className="flex justify-center pt-2 pb-3" aria-hidden="true">
           <span className="h-1.5 w-10 rounded-full bg-text-2/30" />

@@ -4,7 +4,8 @@ import { BackupError, parseBackup } from '../db/backup.ts'
 import { restoreBackup } from '../db/backup-store.ts'
 import type { ActivityLevel, Goal, Profile, Sex, Targets } from '../db/types.ts'
 import { ChoiceRow, MacroLabel, NumberRow, RowGroup } from '../components/fields.tsx'
-import { BottomBar, Button, Segmented, SectionTitle } from '../components/ui.tsx'
+import { IconChevronLeft } from '../components/icons.tsx'
+import { BottomBar, Button, CircleButton, Segmented, SectionTitle } from '../components/ui.tsx'
 import { formatInt, parseDecimal, toInputString } from '../domain/format.ts'
 import { ACTIVITY_OPTIONS, GOAL_OPTIONS, SEX_OPTIONS } from '../domain/labels.ts'
 import { calculateTargets, macrosForKcal, type BodyData } from '../domain/targets.ts'
@@ -143,9 +144,9 @@ export function ProfileFlow({
           step={2}
           title="Tus metas diarias"
           left={
-            <Button variant="plain" className="-ml-2 px-2" onClick={() => setStep('body')}>
-              Atrás
-            </Button>
+            <CircleButton label="Atrás" onClick={() => setStep('body')}>
+              <IconChevronLeft size={22} strokeWidth={2.2} />
+            </CircleButton>
           }
         />
         <p className="px-4 text-secondary text-text-2">
@@ -185,7 +186,7 @@ export function ProfileFlow({
           Proteína 2 g por kg, grasa 25% de las calorías y carbohidratos el resto.
         </p>
         {mismatch && macroKcal !== null && (
-          <p className="px-4 pt-2 text-label text-carbs">Tus macros suman {formatInt(macroKcal)} kcal.</p>
+          <p className="px-4 pt-2 text-label font-medium text-warning">Tus macros suman {formatInt(macroKcal)} kcal.</p>
         )}
         {parsed && !sameTargets(parsed, recommended) && (
           <div className="px-4 pt-3">
@@ -212,9 +213,9 @@ export function ProfileFlow({
         title={mode === 'onboarding' ? 'Hola, cuéntame de ti' : 'Mis datos'}
         left={
           mode === 'edit' ? (
-            <Button variant="plain" className="-ml-2 px-2" onClick={onDone}>
-              Cancelar
-            </Button>
+            <CircleButton label="Cancelar" onClick={onDone}>
+              <IconChevronLeft size={22} strokeWidth={2.2} />
+            </CircleButton>
           ) : undefined
         }
       />
@@ -273,7 +274,7 @@ export function ProfileFlow({
 function FlowHeader({ step, title, left }: { step: 1 | 2; title: string; left?: ReactNode }) {
   return (
     <header className="safe-top px-4">
-      <div className="flex min-h-11 items-center justify-between pt-2">
+      <div className="flex min-h-14 items-center justify-between pt-2">
         <div>{left}</div>
         <span className="rounded-full bg-fill px-3 py-1 text-label font-semibold text-text-2">Paso {step} de 2</span>
       </div>

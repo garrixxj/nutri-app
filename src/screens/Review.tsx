@@ -3,7 +3,7 @@ import { MEALS, type Item, type Meal } from '../db/types.ts'
 import { ChipGroup } from '../components/fields.tsx'
 import { IconTrash } from '../components/icons.tsx'
 import { PhotoHero } from '../components/PhotoHero.tsx'
-import { BottomBar, Button, FlowHeader, SectionTitle } from '../components/ui.tsx'
+import { BottomBar, Button, FlowHeader, MacroDot, SectionTitle } from '../components/ui.tsx'
 import { formatInt, parseDecimal, toInputString } from '../domain/format.ts'
 import { MEAL_LABELS } from '../domain/labels.ts'
 import { scaleToGrams } from '../domain/scale.ts'
@@ -267,14 +267,5 @@ function MacroTile({ label, value, dot }: { label: string; value: number; dot: s
       </p>
       <p className="mt-0.5 text-body font-bold tabular">{formatInt(value)} g</p>
     </div>
-  )
-}
-
-function MacroDot({ dot, text }: { dot: string; text: string }) {
-  return (
-    <span className="flex items-center gap-1">
-      <span className={`size-1.5 rounded-full ${dot}`} aria-hidden="true" />
-      {text}
-    </span>
   )
 }

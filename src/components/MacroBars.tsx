@@ -20,10 +20,7 @@ export function MacroBars({ consumed, targets }: { consumed: Macros; targets: Ma
         const ratio = goal > 0 ? Math.min(value / goal, 1) : 0
         return (
           <div key={key} className="min-w-0">
-            <p className="flex items-baseline justify-between gap-1">
-              <span className="truncate text-label font-medium text-text-2">{label}</span>
-              <span className="text-secondary font-bold tabular">{formatInt(value)}g</span>
-            </p>
+            <p className="truncate text-label font-medium text-text-2">{label}</p>
             <div
               className="mt-2 h-2 overflow-hidden rounded-full bg-card"
               role="progressbar"
@@ -37,7 +34,9 @@ export function MacroBars({ consumed, targets }: { consumed: Macros; targets: Ma
                 style={{ transform: `scaleX(${ratio})` }}
               />
             </div>
-            <p className="mt-1.5 text-label text-text-2 tabular">de {formatInt(goal)} g</p>
+            <p className="mt-1.5 text-label text-text-2 tabular">
+              <span className={`text-secondary font-bold ${goal > 0 && value > goal ? 'text-danger' : 'text-text'}`}>{formatInt(value)}</span> / {formatInt(goal)} g
+            </p>
           </div>
         )
       })}

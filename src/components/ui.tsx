@@ -118,7 +118,7 @@ export function Segmented<T extends string>({
             role="radio"
             aria-checked={active}
             onClick={() => onChange(o.value)}
-            className={`min-h-10 flex-1 rounded-full px-2 text-secondary font-semibold transition-colors duration-150 ease-out ${active ? 'bg-card text-text shadow-[0_1px_3px_rgb(0_0_0/0.10)]' : 'text-text-2'}`}
+            className={`min-h-11 flex-1 rounded-full px-2 text-secondary font-semibold transition-colors duration-150 ease-out ${active ? 'bg-card text-text shadow-[0_1px_3px_rgb(0_0_0/0.10)]' : 'text-text-2'}`}
           >
             {o.label}
           </button>
@@ -130,4 +130,14 @@ export function Segmented<T extends string>({
 
 export function SectionTitle({ children }: { children: ReactNode }) {
   return <h2 className="px-4 pt-6 pb-2 text-[18px] leading-6 font-bold tracking-tight">{children}</h2>
+}
+
+/** Macro value with its color dot, e.g. "• P 30". Keeps text neutral for contrast. */
+export function MacroDot({ dot, text }: { dot: string; text: string }) {
+  return (
+    <span className="inline-flex items-center gap-1">
+      <span className={`size-1.5 rounded-full ${dot}`} aria-hidden="true" />
+      {text}
+    </span>
+  )
 }

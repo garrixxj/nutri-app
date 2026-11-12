@@ -8,7 +8,7 @@ import { MEAL_LABELS } from '../domain/labels.ts'
 import { entryTotals } from '../domain/totals.ts'
 import { IconEdit, IconTrash } from './icons.tsx'
 import { Sheet } from './Sheet.tsx'
-import { Button } from './ui.tsx'
+import { Button, MacroDot } from './ui.tsx'
 
 const SOURCE_LABELS: Record<EntrySource, string> = {
   photo: 'Foto',
@@ -70,11 +70,11 @@ export function EntrySheet({ entry, onClose }: { entry: Entry | null; onClose: (
                   <span className="min-w-0 flex-1 text-body">{item.name}</span>
                   <span className="text-body font-semibold tabular">{formatInt(item.kcal)} kcal</span>
                 </div>
-                <p className="mt-0.5 text-label text-text-2 tabular">
-                  {item.grams > 0 ? `${formatInt(item.grams)} g · ` : ''}
-                  <span className="text-protein">P {formatInt(item.protein)}</span> ·{' '}
-                  <span className="text-carbs">C {formatInt(item.carbs)}</span> ·{' '}
-                  <span className="text-fat">G {formatInt(item.fat)}</span>
+                <p className="mt-0.5 flex flex-wrap gap-x-2.5 text-label text-text-2 tabular">
+                  {item.grams > 0 && <span>{formatInt(item.grams)} g</span>}
+                  <MacroDot dot="bg-protein" text={`P ${formatInt(item.protein)}`} />
+                  <MacroDot dot="bg-carbs" text={`C ${formatInt(item.carbs)}`} />
+                  <MacroDot dot="bg-fat" text={`G ${formatInt(item.fat)}`} />
                 </p>
               </li>
             ))}
