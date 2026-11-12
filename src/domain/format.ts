@@ -6,6 +6,13 @@ export function formatInt(n: number): string {
   return intFormat.format(Math.round(n))
 }
 
+const kgFormat = new Intl.NumberFormat('es-CL', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
+
+/** Body weight always with one decimal: 80 → "80,0", 79.96 → "80,0" */
+export function formatKg(n: number): string {
+  return kgFormat.format(n)
+}
+
 /** 12.35 → "12,4" */
 export function formatDecimal(n: number): string {
   return oneDecimalFormat.format(n)

@@ -24,6 +24,7 @@
   --carbs: #4eba6f;
   --fat: #5b8def;
   --water: #1d9bc4;
+  --chart: #2e9a55;
   --warning: #9a5b00;
   --danger: #ba1a1a;
   --separator: rgb(26 27 31 / 0.08);
@@ -46,6 +47,7 @@
     --carbs: #5fcf80;
     --fat: #84a9ff;
     --water: #5cc8e6;
+    --chart: #46ad66;
     --warning: #ffb95c;
     --danger: #ffb4ab;
     --separator: rgb(255 255 255 / 0.08);
@@ -67,6 +69,7 @@
   --color-carbs: var(--carbs);
   --color-fat: var(--fat);
   --color-water: var(--water);
+  --color-chart: var(--chart);
   --color-warning: var(--warning);
   --color-danger: var(--danger);
   --color-separator: var(--separator);

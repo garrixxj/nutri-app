@@ -11,7 +11,7 @@ import { EditEntry } from './screens/EditEntry.tsx'
 import { Favorites } from './screens/Favorites.tsx'
 import { History } from './screens/History.tsx'
 import { ManualEntry } from './screens/ManualEntry.tsx'
-import { Placeholder } from './screens/Placeholder.tsx'
+import { Progress } from './screens/Progress.tsx'
 import { Settings } from './screens/Settings.tsx'
 import { ProfileFlow } from './screens/ProfileFlow.tsx'
 import { Today } from './screens/Today.tsx'
@@ -87,7 +87,7 @@ function Shell({ profile }: { profile: Profile }) {
       screen = <History profile={profile} params={params} onRegister={openRegister} />
       break
     case '/progreso':
-      screen = <Placeholder title="Progreso" message="Peso, gráfico y resumen semanal llegan en la próxima fase." />
+      screen = <Progress profile={profile} />
       break
     case '/ajustes':
       screen = <Settings profile={profile} />
