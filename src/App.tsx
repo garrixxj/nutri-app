@@ -4,9 +4,10 @@ import { RegisterSheet, type RegisterKind } from './app/RegisterSheet.tsx'
 import { TAB_PATHS, navigate, useRoute } from './app/router.ts'
 import { TabBar } from './app/TabBar.tsx'
 import { db } from './db/db.ts'
-import { PROFILE_ID } from './db/types.ts'
+import { PROFILE_ID, type Meal, type Profile } from './db/types.ts'
 import { Placeholder } from './screens/Placeholder.tsx'
 import { ProfileFlow } from './screens/ProfileFlow.tsx'
+import { Today } from './screens/Today.tsx'
 
 const REGISTER_PATHS: Partial<Record<RegisterKind, string>> = {
   manual: '/registrar/manual',
@@ -17,13 +18,14 @@ export default function App() {
   const profile = useLiveQuery(async () => (await db.profile.get(PROFILE_ID)) ?? null, [])
   if (profile === undefined) return null
   if (profile === null) return <ProfileFlow mode="onboarding" onDone={() => navigate('/', { replace: true })} />
-  return <Shell />
+  return <Shell profile={profile} />
 }
 
-function Shell() {
+function Shell({ profile }: { profile: Profile }) {
   const { path } = useRoute()
-  const [registerOpen, setRegisterOpen] = useState(false)
-  const closeRegister = useCallback(() => setRegisterOpen(false), [])
+  const [register, setRegister] = useState<{ open: boolean; meal?: Meal }>({ open: false })
+  const openRegister = useCallback((meal?: Meal) => setRegister({ open: true, meal }), [])
+  const closeRegister = useCallback(() => setRegister((r) => ({ ...r, open: false })), [])
 
   const isTab = (TAB_PATHS as readonly string[]).includes(path)
 
@@ -39,20 +41,20 @@ function Shell() {
       screen = <Placeholder title="Ajustes" message="API key, metas y respaldo." />
       break
     default:
-      screen = <Placeholder title="Hoy" message="Tu resumen del día." />
+      screen = <Today profile={profile} onRegister={openRegister} />
   }
 
   return (
     <>
       {screen}
-      {isTab && <TabBar current={path} onRegister={() => setRegisterOpen(true)} />}
+      {isTab && <TabBar current={path} onRegister={() => openRegister()} />}
       <RegisterSheet
-        open={registerOpen}
+        open={register.open}
         onClose={closeRegister}
         onPick={(kind) => {
-          setRegisterOpen(false)
+          closeRegister()
           const to = REGISTER_PATHS[kind]
-          if (to) navigate(to)
+          if (to) navigate(register.meal ? `${to}?meal=${register.meal}` : to)
         }}
       />
     </>
