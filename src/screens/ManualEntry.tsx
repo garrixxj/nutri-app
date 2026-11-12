@@ -4,7 +4,7 @@ import { db } from '../db/db.ts'
 import { MEALS, type Item, type Meal } from '../db/types.ts'
 import { ChipGroup, MacroLabel, NumberRow, RowGroup, TextRow } from '../components/fields.tsx'
 import { IconTrash } from '../components/icons.tsx'
-import { BottomBar, Button, SectionTitle } from '../components/ui.tsx'
+import { BottomBar, Button, FlowHeader, SectionTitle } from '../components/ui.tsx'
 import { toISODate } from '../domain/dates.ts'
 import { formatInt, parseDecimal } from '../domain/format.ts'
 import { MEAL_LABELS } from '../domain/labels.ts'
@@ -92,16 +92,9 @@ export function ManualEntry({ params }: { params: URLSearchParams }) {
 
   return (
     <main className="mx-auto max-w-md pb-[calc(env(safe-area-inset-bottom)+104px)]">
-      <header className="safe-top px-4">
-        <div className="flex min-h-11 items-center pt-2">
-          <Button variant="plain" className="-ml-2 px-2" onClick={() => goBack('/')}>
-            Cancelar
-          </Button>
-        </div>
-        <h1 className="pt-2 pb-1 text-title font-bold tracking-tight">Registro manual</h1>
-      </header>
+      <FlowHeader title="Registro manual" onBack={() => goBack('/')} backLabel="Cancelar" />
 
-      <SectionTitle>Comida</SectionTitle>
+      <SectionTitle>¿En qué comida?</SectionTitle>
       <ChipGroup label="Comida" options={MEAL_OPTIONS} value={meal} onChange={setMeal} />
 
       {drafts.map((d, i) => {

@@ -40,6 +40,7 @@ El botón central es un círculo casi negro que sobresale de la barra; abre la h
 ## Pantallas clave
 - Hoy: tarjeta grande con "Te quedan X kcal" a la izquierda y el anillo con el % de la meta a la derecha; debajo, un panel gris con las tres barras de macros. Luego "Comidas" con un chip "N de 5 registradas" y una grilla de 2 columnas (emoji o foto, nombre de la comida, ítems y kcal, botón +). Snack ocupa el ancho completo. Tocar una comida con un registro abre su detalle; con varios, abre una hoja con la lista.
 - Foto y Revisión de IA (estilo "AI Food Scanner" de Stitch): la foto ocupa el ancho completo arriba, con esquinas de visor y un botón atrás circular encima. Una tarjeta se monta sobre el borde inferior de la foto: chip de confianza promedio, kcal en grande, título, n.º de alimentos y tres bloques de macros. Debajo: chips "¿En qué comida?", ítems con gramos editables y confianza, supuestos de la IA y el botón fijo "Guardar en <comida> · N kcal". Sin foto (texto o edición), la tarjeta va bajo un encabezado con botón atrás. Mientras analiza: la misma foto con la píldora "Analizando" y un skeleton en la tarjeta.
+- Historial: flechas para cambiar de semana con el día elegido al centro (tocarlo abre el selector de fecha) y una tira de 7 días (L a D). El día elegido va en píldora negra; un punto verde marca los días con registros. Debajo, el mismo resumen y grilla de Hoy.
 - Estados: vacío (invita a registrar la primera comida), cargando (skeleton y texto "Analizando tu plato…") y error (mensaje claro más registro manual).
 
 ## Movimiento

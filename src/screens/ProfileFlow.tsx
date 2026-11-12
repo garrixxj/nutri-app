@@ -275,9 +275,9 @@ function FlowHeader({ step, title, left }: { step: 1 | 2; title: string; left?: 
     <header className="safe-top px-4">
       <div className="flex min-h-11 items-center justify-between pt-2">
         <div>{left}</div>
-        <span className="text-label font-medium text-text-2">Paso {step} de 2</span>
+        <span className="rounded-full bg-fill px-3 py-1 text-label font-semibold text-text-2">Paso {step} de 2</span>
       </div>
-      <h1 className="pt-2 pb-2 text-title font-bold tracking-tight">{title}</h1>
+      <h1 className="pt-2 pb-2 text-[28px] leading-9 font-bold tracking-tight">{title}</h1>
     </header>
   )
 }
