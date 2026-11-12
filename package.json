@@ -10,7 +10,8 @@
     "lint": "oxlint",
     "test": "vitest run",
     "preview": "vite preview --host",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "check": "sh scripts/check.sh"
   },
   "dependencies": {
     "dexie": "^4.4.7",

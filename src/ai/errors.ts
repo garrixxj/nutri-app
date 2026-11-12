@@ -17,12 +17,13 @@ export type AiErrorAction = 'settings' | 'retry' | 'none'
 
 export class AiError extends Error {
   override name = 'AiError'
-  constructor(
-    readonly kind: AiErrorKind,
-    message: string,
-    readonly action: AiErrorAction,
-  ) {
+  readonly kind: AiErrorKind
+  readonly action: AiErrorAction
+
+  constructor(kind: AiErrorKind, message: string, action: AiErrorAction) {
     super(message)
+    this.kind = kind
+    this.action = action
   }
 }
 
